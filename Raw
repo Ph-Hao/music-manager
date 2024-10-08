@@ -1,11 +1,14 @@
 import { useState } from 'react';
 
 export default function AddSongModal({ show, onHide, onCreatePlaylist }) {
+
     const [songName, setSongName] = useState('');
     const [artist, setArtist] = useState('');
     const [album, setAlbum] = useState('');
     const [year, setYear] = useState('');
     const [errors, setErrors] = useState({});
+
+
     const validate = () => {
         const newErrors = {};
         if (!songName) newErrors.songName = "Song name is required.";
@@ -17,6 +20,7 @@ export default function AddSongModal({ show, onHide, onCreatePlaylist }) {
         }
         return newErrors;
     };
+
 
     const handleSubmit = () => {
         const newErrors = validate();
@@ -87,11 +91,13 @@ export default function AddSongModal({ show, onHide, onCreatePlaylist }) {
 }
 
 
-===========================================================
+
+
+========================================
 
 import React, { useEffect, useState } from 'react';
 import { getPlaylistsApi, getPlaylistApi, addPlaylistsApi } from '../../util/playlistsRestApi';
-import '../../scss/AddSongToPlaylistModal.scss';
+// import '../../scss/AddSongToPlaylistModal.scss';
 
 export default function AddToPlaylistModal({ show, onHide, song, onAddToPlaylist }) {
     const [playlists, setPlaylists] = useState([]);
@@ -175,7 +181,7 @@ export default function AddToPlaylistModal({ show, onHide, song, onAddToPlaylist
     );
 }
 
-============================================================
+========================================
 import { useState, useEffect } from 'react';
 import { getSongsApi } from '../../util/songsRestApi';
 
@@ -270,10 +276,12 @@ export default function CreatePlaylistModal({ show, onHide, onCreatePlaylist, pl
         </div>
     );
 }
-===============================
+
+======================
 import { useState } from 'react';
 
 export default function EditSongModal({ show, onHide, song, onEditSong }) {
+
     const [songName, setSongName] = useState(song.songName);
     const [artist, setArtist] = useState(song.artist);
     const [album, setAlbum] = useState(song.album);
@@ -357,10 +365,10 @@ export default function EditSongModal({ show, onHide, song, onEditSong }) {
 }
 
 
-=========================
+=================
 import { useState, useEffect } from 'react';
 import { getSongsApi } from '../../util/songsRestApi';
-import { updatePlaylistApi } from '../../util/playlistsRestApi'; // Import hàm updatePlaylistApi
+import { updatePlaylistApi } from '../../util/playlistsRestApi';
 
 export default function UpdatePlaylistModal({ show, onHide, onUpdatePlaylist, selectedPlaylist }) {
     const [playlistName, setPlaylistName] = useState('');
@@ -385,7 +393,7 @@ export default function UpdatePlaylistModal({ show, onHide, onUpdatePlaylist, se
             fetchSongs();
             if (selectedPlaylist) {
                 setPlaylistName(selectedPlaylist.name);
-                setSelectedSongs(selectedPlaylist.songs.map(song => song.id)); // Lấy ID bài hát
+                setSelectedSongs(selectedPlaylist.songs.map(song => song.id));
             }
         }
     }, [show, selectedPlaylist]);
@@ -396,10 +404,10 @@ export default function UpdatePlaylistModal({ show, onHide, onUpdatePlaylist, se
             name: playlistName.trim(),
             songs: selectedSongs.map(songId => {
                 const song = songs.find(s => s.id === songId);
-                return song ? { ...song } : null; // Trả về đối tượng bài hát nếu tìm thấy
-            }).filter(Boolean) // Lọc các null
+                return song ? { ...song } : null;
+            }).filter(Boolean)
         };
-        const updatedResponse = await updatePlaylistApi(selectedPlaylist.id, updatedPlaylist); // Cập nhật playlist
+        const updatedResponse = await updatePlaylistApi(selectedPlaylist.id, updatedPlaylist);
         onUpdatePlaylist(updatedResponse);
         resetFields();
         onHide();
@@ -458,15 +466,12 @@ export default function UpdatePlaylistModal({ show, onHide, onUpdatePlaylist, se
         </div>
     );
 }
-========================================================================
+=====================
 import { Link } from "react-router-dom";
 import SongPlayer from "./SongPlayer"
 
 export default function Aside() {
 
-    const handlePlaySong = () => {
-
-    }
     return (
         <aside>
             <>
@@ -499,69 +504,7 @@ export default function Aside() {
         </aside>
     );
 }
-==========================================================
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-
-export default function Direction({ path }) {
-    return (
-        <section id='direction'>
-            <Link to="/">Home</Link>
-            {path && <span> {path}</span>}
-        </section>
-    );
-}
-==========================================
-
-export default function Footer() {
-  return (
-    <footer>
-      <h6>Copyright 2014 TMA Solutions</h6>
-    </footer>
-  );
-}
-
-
-========================
-import { Link } from "react-router-dom";
-import logo from "../img/music-icon.png";
-
-export default function Headers() {
-  return (
-    <header>
-      <img src={logo} alt="music-icon" />
-
-      <Link
-        to='/'
-        style={{
-          textDecoration: 'none',
-          color: 'inherit'
-        }}
-      >
-        <h1>Spotifier</h1>
-      </Link>
-    </header>
-  );
-}
-======================================================
-
-import React, { useEffect } from "react";
-
-export default function Home({ setPath }) {
-
-    useEffect(() => setPath(""), [setPath])
-
-    return (
-        <section style={{
-            width: `100%`,
-            height: '750px'
-        }}>
-        </section>
-    )
-}
-
-
-==================================
+=====================
 import { Route, Routes } from 'react-router-dom';
 import Aside from "./Aside";
 import Direction from "./Direction";
@@ -594,7 +537,7 @@ export default function Main() {
   );
 }
 
-===========================
+=========================
 import { useState, useEffect } from 'react';
 import {
     getPlaylistsApi,
@@ -609,6 +552,7 @@ import CreatePlaylistModal from './modal/CreatePlaylistModal';
 import UpdatePlaylistModal from './modal/UpdatePlaylistModal';
 
 export default function ManagePlaylists({ setPath }) {
+
     const [playlists, setPlaylists] = useState([]);
     const [checkState, setCheckState] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -660,7 +604,6 @@ export default function ManagePlaylists({ setPath }) {
         setCheckState(updatedCheckState);
     };
 
-
     const handleToggleAll = (e) => {
         const isChecked = e.target.checked;
         const updatedCheckState = checkState.map((checked, index) => {
@@ -669,7 +612,6 @@ export default function ManagePlaylists({ setPath }) {
         });
         setCheckState(updatedCheckState);
     };
-
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value.trim());
@@ -730,11 +672,11 @@ export default function ManagePlaylists({ setPath }) {
         }
     };
 
-    const selectedItemsCount = checkState.filter(Boolean).length;
-
     const handleUpdatePlaylist = async (updatedPlaylist) => {
         await updatePlaylistApi(updatedPlaylist.id, updatedPlaylist);
-        setPlaylists(prevPlaylists => prevPlaylists.map(playlist => (playlist.id === updatedPlaylist.id ? updatedPlaylist : playlist)));
+        setPlaylists(prevPlaylists =>
+            prevPlaylists.map(playlist => (playlist.id === updatedPlaylist.id ? updatedPlaylist : playlist))
+        );
         setEditModalShow(false);
     };
 
@@ -743,6 +685,7 @@ export default function ManagePlaylists({ setPath }) {
         setEditModalShow(true);
     };
 
+    const selectedItemsCount = checkState.filter(Boolean).length;
 
     return (
         <>
@@ -784,7 +727,8 @@ export default function ManagePlaylists({ setPath }) {
     );
 }
 
-====================
+
+========================
 import { useState, useEffect } from 'react';
 import { getSongsApi, deleteSongApi, addSongApi, updateSongApi } from "../util/songsRestApi";
 import SongsPagination from './SongsPagination';
@@ -944,7 +888,7 @@ export default function ManageSongs({ setPath }) {
                 setEditModalShow={setEditModalShow}
                 setSelectedSong={setSelectedSong}
                 isAllChecked={isAllChecked}
-                addToPlaylist={addToPlaylist} // Thêm hàm này vào
+                addToPlaylist={addToPlaylist}
             />
             <SongsPagination
                 totalItems={totalSongs}
@@ -969,9 +913,7 @@ export default function ManageSongs({ setPath }) {
     );
 }
 
-
-===========================
-
+================
 import { useState } from 'react';
 import search from "../img/search-icon.png";
 import add from "../img/add-icon.png";
@@ -1031,7 +973,7 @@ export default function NavPlaylist({ onSearchChange, deletePlaylists, showModal
     );
 }
 
-=======================
+==============
 import { useState } from 'react';
 import search from "../img/search-icon.png";
 import add from "../img/add-icon.png";
@@ -1091,8 +1033,7 @@ export default function NavSong({ onSearchChange, deleteSongs, showModal }) {
     );
 }
 
-
-========================
+==========
 function PlaylistsPagination({ totalItems, itemsPerPage, currentPage, onPageChange, selectedItemsCount }) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -1124,12 +1065,12 @@ function PlaylistsPagination({ totalItems, itemsPerPage, currentPage, onPageChan
 }
 
 export default PlaylistsPagination;
-
-=====================
-import React from "react";
+============================
+import React, { useState, useEffect } from "react";
 import del from "../img/delete-icon.png";
 import edit from "../img/edit-icon.png";
 import play from "../img/play-icon.png";
+import { useSong } from './SongContext';
 
 export default function PlaylistTable({
     playlists,
@@ -1141,6 +1082,46 @@ export default function PlaylistTable({
     setSelectedPlaylist,
     isAllChecked
 }) {
+    const [currentSongIndex, setCurrentSongIndex] = useState([]);
+
+    const { setSongList, setCurrentSong, setShowSelectArea } = useSong();
+
+    const handlePlay = (playlist) => {
+        if (playlist.songs.length === 0) {
+            alert("Playlist is empty!");
+            return;
+        }
+        setSongList(playlist.songs);
+        setCurrentSong(playlist.songs[0]);
+        setShowSelectArea(true);
+    };
+
+    useEffect(() => {
+        setCurrentSongIndex(playlists.map(() => 0));
+    }, [playlists]);
+
+    const handlePrevSong = (playlistIndex) => {
+        setCurrentSongIndex((prevState) => {
+            const newState = [...prevState];
+            const totalSongs = playlists[playlistIndex].songs.length;
+            if (totalSongs > 0) {
+                newState[playlistIndex] = (newState[playlistIndex] - 1 + totalSongs) % totalSongs;
+            }
+            return newState;
+        });
+    };
+
+    const handleNextSong = (playlistIndex) => {
+        setCurrentSongIndex((prevState) => {
+            const newState = [...prevState];
+            const totalSongs = playlists[playlistIndex].songs.length;
+            if (totalSongs > 0) {
+                newState[playlistIndex] = (newState[playlistIndex] + 1) % totalSongs;
+            }
+            return newState;
+        });
+    };
+
     return (
         <div id="table-container">
             <table id="table">
@@ -1175,9 +1156,22 @@ export default function PlaylistTable({
                                     />
                                 </th>
                                 <td className="name-column">{playlist.name}</td>
-                                <td className="songs-column">{playlist.songs.length}</td>
+                                <td className="songs-column" style={{ textAlign: "center" }}>
+                                    {playlist.songs.length > 0 ? (
+                                        <>
+                                            <div>{playlist.songs.length}</div>
+                                            <div>
+                                                <button onClick={() => handlePrevSong(index)}>{"<"}</button>
+                                                {playlist.songs[currentSongIndex[index]]?.songName || "No song"}
+                                                <button onClick={() => handleNextSong(index)}>{">"}</button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        "No songs"
+                                    )}
+                                </td>
                                 <td className="action-column">
-                                    <button>
+                                    <button onClick={() => handlePlay(playlist)}>
                                         <img src={play} alt="play-song-icon" />
                                         Play
                                     </button>
@@ -1204,7 +1198,8 @@ export default function PlaylistTable({
     );
 }
 
-===========================
+==================
+
 import React, { createContext, useContext, useState } from 'react';
 
 const SongContext = createContext();
@@ -1214,49 +1209,136 @@ export const useSong = () => useContext(SongContext);
 export const SongProvider = ({ children }) => {
     const [currentSong, setCurrentSong] = useState(null);
     const [songList, setSongList] = useState([]);
+    const [isPlaying, setIsPlaying] = useState(false);
     const [currentSongs, setCurrentSongs] = useState([]);
+    const [showSelectArea, setShowSelectArea] = useState(false); // Trạng thái cho vùng chọn
 
     return (
-        <SongContext.Provider value={{ currentSong, setCurrentSong, songList, setSongList, currentSongs, setCurrentSongs }}>
+        <SongContext.Provider value={{
+            currentSong,
+            setCurrentSong,
+            songList,
+            setSongList,
+            isPlaying,
+            setIsPlaying,
+            currentSongs,
+            setCurrentSongs,
+            showSelectArea,
+            setShowSelectArea
+        }}>
             {children}
         </SongContext.Provider>
     );
 };
-
-
-==================================
-import React, { useState } from 'react';
+===============
+import React, { useState, useRef, useEffect } from 'react';
 import { useSong } from './SongContext';
+import TimeSlider from "react-input-slider";
+import Slider from 'react-input-slider';
 import dvd from '../img/dvd-icon.png';
 import next from '../img/next-icon.png';
 import prev from '../img/prev-icon.png';
 import pause from '../img/pause-icon.png';
 import play from '../img/play-song-icon.png';
-import '../scss/songPlayer.scss';
+import repeat from "../img/repeat-icon.png";
+import volumeIcon from '../img/volume-icon.png';
 
 export default function SongPlayer() {
+    const audioRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const { currentSong, songList, setCurrentSong } = useSong();
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState({ x: 50 });
+    const [isRepeating, setIsRepeating] = useState(false);
+
+    const { currentSong, songList, setCurrentSong, showSelectArea } = useSong();
+
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            setCurrentTime(0);
+        }
+        if (currentSong) {
+            audioRef.current.src = currentSong.audio;
+            audioRef.current.load();
+            audioRef.current.play();
+            setIsPlaying(true);
+        }
+    }, [currentSong]);
+
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.onloadeddata = () => {
+                if (isPlaying) {
+                    audioRef.current.play().catch(error => {
+                        console.error("Failed to play audio:", error);
+                    });
+                }
+            };
+        }
+    }, [currentSong, isPlaying]);
+
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.volume = volume.x / 100;
+        }
+    }, [volume]);
 
     const handlePlayPause = () => {
+        if (audioRef.current === null) {
+            alert("Please choose song or playlist to play!");
+            return;
+        } else if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play();
+        }
         setIsPlaying(prev => !prev);
     };
 
     const handleNext = () => {
-        if (!currentSong) return; // Nếu không có bài hát hiện tại, không làm gì
-        const currentIndex = songList.findIndex(song => song.id === currentSong.id); // Lấy chỉ số của bài hát hiện tại
-        const nextIndex = (currentIndex + 1) % songList.length; // Chuyển đến bài hát tiếp theo, nếu tới cuối thì quay lại đầu
-        setCurrentSong(songList[nextIndex]); // Cập nhật bài hát hiện tại
+        if (isRepeating) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play();
+        } else {
+            if (!currentSong) return;
+            const currentIndex = songList.findIndex(song => song.id === currentSong.id);
+            const nextIndex = (currentIndex + 1) % songList.length;
+            setCurrentSong(songList[nextIndex]);
+        }
     };
+
+    // const handleNext = () => {
+    //     if (!currentSong) return;
+    //     const currentIndex = songList.findIndex(song => song.id === currentSong.id);
+    //     const nextIndex = (currentIndex + 1) % songList.length;
+    //     setCurrentSong(songList[nextIndex]);
+    // };
 
     const handlePrev = () => {
-        if (!currentSong) return; // Nếu không có bài hát hiện tại, không làm gì
-        const currentIndex = songList.findIndex(song => song.id === currentSong.id); // Lấy chỉ số của bài hát hiện tại
-        const prevIndex = (currentIndex - 1 + songList.length) % songList.length; // Chuyển đến bài hát trước đó, nếu tới đầu thì quay lại cuối
-        setCurrentSong(songList[prevIndex]); // Cập nhật bài hát hiện tại
+        if (!currentSong) return;
+        const currentIndex = songList.findIndex(song => song.id === currentSong.id);
+        const prevIndex = (currentIndex - 1 + songList.length) % songList.length;
+        setCurrentSong(songList[prevIndex]);
     };
 
-    console.log(songList);
+    const handleTimeSliderChange = ({ x }) => {
+        audioRef.current.currentTime = x;
+        setCurrentTime(x);
+
+        if (!isPlaying) {
+            setIsPlaying(true);
+            audioRef.current.play();
+        }
+    };
+
+    const handleSongSelect = (song) => {
+        setCurrentSong(song);
+    };
+
+    const toggleRepeat = () => {
+        setIsRepeating(prev => !prev);
+    };
 
     return (
         <div className="player-container">
@@ -1266,6 +1348,36 @@ export default function SongPlayer() {
             <section>
                 <h3>{currentSong ? currentSong.songName : 'Title'}</h3>
                 <h5>{currentSong ? currentSong.artist : 'Artist'}</h5>
+            </section>
+            <TimeSlider
+                axis="x"
+                xmax={duration || 100}
+                x={currentTime || 0}
+                onChange={handleTimeSliderChange}
+            />
+            {currentSong && (
+                <audio
+                    ref={audioRef}
+                    onLoadedData={() => setDuration(audioRef.current.duration)}
+                    onTimeUpdate={() => setCurrentTime(audioRef.current.currentTime)}
+                    onEnded={handleNext}
+                />
+            )}
+            <section className='volume'>
+                <img src={volumeIcon} alt="volume" />
+                <Slider className="slider"
+                    axis="x"
+                    x={volume.x}
+                    xmin={0}
+                    xmax={100}
+                    onChange={({ x }) => setVolume({ x })}
+                />
+            </section>
+
+            <section className='song-option'>
+                <button className='btn-repeat' onClick={toggleRepeat}>
+                    <img src={repeat} alt='Repeat song' />
+                </button>
             </section>
             <section className="button-container">
                 <button onClick={handlePrev}>
@@ -1278,11 +1390,33 @@ export default function SongPlayer() {
                     <img src={next} alt="Next" />
                 </button>
             </section>
+            {showSelectArea && (
+                <section>
+                    <h3>Playlist Songs:</h3>
+                    <div className="song-list">
+                        {songList.length > 0 ? (
+                            songList.map(song => (
+                                <div
+                                    key={song.id}
+                                    onClick={() => handleSongSelect(song)}
+                                    className="song-item"
+                                >
+                                    <h5>{song.songName}</h5>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No songs available in this playlist.</p>
+                        )}
+                    </div>
+                </section>
+            )}
         </div>
     );
 }
 
-========================
+
+================
+
 function SongsPagination({ totalItems, itemsPerPage, currentPage, onPageChange, selectedItemsCount }) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -1314,823 +1448,124 @@ function SongsPagination({ totalItems, itemsPerPage, currentPage, onPageChange, 
 }
 
 export default SongsPagination;
-==================================
+
+====================
 import React, { useState, useEffect } from "react";
-import { useSong } from './SongContext'; // import useSong từ context
+import { useSong } from './SongContext';
 import del from "../img/delete-icon.png";
 import edit from "../img/edit-icon.png";
 import play from "../img/play-icon.png";
 import addToPlaylists from "../img/add-playlist-icon.png";
-import AddToPlaylistModal from "./modal/AddSongToPlayListModal";
+import AddToPlaylistModal from "./modal/AddSongToPlayListModal"
 
-export default function TableSong({
-    currentSongs,
-    checkState,
-    startIndex,
-    handleCheckboxChange,
-    handleToggleAll,
-    deleteOneSong,
-    setEditModalShow,
-    setSelectedSong,
-    isAllChecked,
-    addToPlaylist
+export default function SongTable({
+  currentSongs,
+  checkState,
+  startIndex,
+  handleCheckboxChange,
+  handleToggleAll,
+  deleteOneSong,
+  setEditModalShow,
+  setSelectedSong,
+  isAllChecked,
+  addToPlaylist
 }) {
-    const [addToPlaylistModalShow, setAddToPlaylistModalShow] = useState(false);
-    const [selectedSongForPlaylist, setSelectedSongForPlaylist] = useState(null);
-    const { setCurrentSong } = useSong();
-    const { setSongList, setCurrentSongs } = useSong();
+  const [addToPlaylistModalShow, setAddToPlaylistModalShow] = useState(false);
+  const [selectedSongForPlaylist, setSelectedSongForPlaylist] = useState(null);
+  const { setSongList, setCurrentSongs } = useSong();
+  const { setCurrentSong, setIsPlaying, setShowSelectArea } = useSong();
 
-    useEffect(() => {
-        setSongList(currentSongs);
-        setCurrentSongs(currentSongs);
-    }, [currentSongs, setSongList, setCurrentSongs]);
 
-    const handleAddToPlaylist = (song) => {
-        setSelectedSongForPlaylist(song);
-        setAddToPlaylistModalShow(true);
-    };
+  useEffect(() => {
+    setCurrentSongs(currentSongs);
+  }, [currentSongs, setSongList, setCurrentSongs]);
 
-    const handlePlaySong = (song) => {
-        setCurrentSong(song);
-    };
+  const handleAddToPlaylist = (song) => {
+    setSelectedSongForPlaylist(song);
+    setAddToPlaylistModalShow(true);
+  };
 
-    return (
-        <div id="table-container">
-            <table id="table">
-                <thead>
-                    <tr id="fixed-title">
-                        <th className="checkBox-column">
-                            <input
-                                id="checkBoxAll"
-                                type="checkbox"
-                                onChange={handleToggleAll}
-                                checked={currentSongs.length > 0 && isAllChecked}
-                                disabled={currentSongs.length === 0}
-                            />
-                        </th>
-                        <th className="name-column">Name</th>
-                        <th className="artist-column">Artist</th>
-                        <th className="action-column">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentSongs.map((song, index) => (
-                        <tr key={song.id}>
-                            <th>
-                                <input
-                                    type="checkbox"
-                                    checked={checkState[startIndex + index] || false}
-                                    onChange={() => handleCheckboxChange(index)}
-                                />
-                            </th>
-                            <td>{song.songName}</td>
-                            <td>{song.artist}</td>
-                            <td>
-                                <button onClick={() => handlePlaySong(song)}>
-                                    <img src={play} alt="play-song-icon" />
-                                    Play
-                                </button>
-                                <button onClick={() => handleAddToPlaylist(song)}>
-                                    <img src={addToPlaylists} alt="add-to-playlist-icon" />
-                                    Add to playlists
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setSelectedSong(song);
-                                        setEditModalShow(true);
-                                    }}
-                                >
-                                    <img src={edit} alt="edit-song-icon" />
-                                    Edit
-                                </button>
-                                <button onClick={() => deleteOneSong(song.id)}>
-                                    <img src={del} alt="delete-song-icon" />
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            {selectedSongForPlaylist && (
-                <AddToPlaylistModal
-                    show={addToPlaylistModalShow}
-                    onHide={() => setAddToPlaylistModalShow(false)}
-                    song={selectedSongForPlaylist}
-                    onAddToPlaylist={addToPlaylist}
-                />
-            )}
-        </div>
-    );
-}
-===========================
+  // const handlePlaySong = (song) => {
+  //     setCurrentSong(song);
+  //     setIsPlaying(true);
+  // };
 
-footer {
-  text-align: center;
-  margin: 15px;
-}
+  const handlePlaySong = (song) => {
+    setSongList(currentSongs);
+    setCurrentSong(song);
+    setIsPlaying(true);
+    setShowSelectArea(false);
+  };
 
 
-===================================
-@use "sass:math";
-@import "size";
-
-header {
-  @include size();
-  background-color: lightgray;
-  text-align: left;
-  padding: 10px;
-  display: flex;
-
-  img {
-    @include size(50px, 50px);
-    margin-left: 20px;
-  }
-
-  h1 {
-    color: rgb(241, 124, 124);
-    padding: 5px;
-  }
-}
-
-========================================
-@use "sass:math";
-
-$aqua: aqua;
-$fullWidth: 100%;
-@import "size";
-
-.button-basic {
-  border: none;
-  padding: 10px;
-  background-color: transparent;
-  cursor: pointer;
-}
-
-main {
-  display: flex;
-  @include size($fullWidth);
-  margin: 0;
-  padding: 0;
-
-  aside {
-    @include size($width: 15%);
-    background-color: #f8f9fa;
-    float: left;
-
-    button {
-      @extend .button-basic;
-      font-size: larger;
-      width: $fullWidth;
-
-      &:hover {
-        background-color: $aqua;
-      }
-    }
-  }
-
-  #main-section {
-    @include size($fullWidth - 15%);
-  }
-
-  #direction {
-    @include size($fullWidth, 30px);
-    background-color: bisque;
-    // padding: 5px;
-  }
-
-  nav {
-    @include size($height: 47px);
-    background-color: lightblue;
-    align-items: center;
-    display: flex;
-
-    #right {
-      display: flex;
-      align-items: center;
-    }
-
-    .search-input {
-      width: 300px;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    ul {
-      display: flex;
-      list-style: none;
-    }
-
-    h2 {
-      float: left;
-      // margin-top: 15px;
-    }
-
-    button {
-      @extend .button-basic;
-      font-size: large;
-      color: white;
-      @include size($height: 100%);
-      color: #686868;
-
-      img {
-        @include size(25px, 25px);
-        margin-right: 8px;
-        vertical-align: middle;
-      }
-
-      &:hover {
-        background-color: rgb(255, 255, 255);
-      }
-    }
-  }
-
-  #right {
-    margin-left: auto;
-    padding: 15px;
-    // margin-top: 15px;
-    display: flex;
-
-    button {
-      margin-left: 10px;
-    }
-  }
-
-  table {
-    width: 100%;
-    border: #686868 1px solid;
-
-    #fixed-title {
-      position: sticky;
-      top: 0;
-      background-color: whitesmoke;
-    }
-
-    th {
-      padding: 10px 0;
-    }
-
-    td {
-      text-align: left;
-    }
-
-    tr {
-      &:nth-child(even) {
-        background-color: #e7e7e7;
-      }
-    }
-
-    .action-column {
-      width: 30%;
-    }
-
-    .checkBox-column {
-      width: 2.5%;
-    }
-
-    // .name-column {
-    //   width: 40%;
-    // }
-
-    // .artist-column {
-    //   width: 40%;
-    // }
-
-    input[type="checkbox"] {
-      accent-color: blue;
-      cursor: pointer;
-      margin: 0;
-      padding-left: 10px;
-    }
-
-    button {
-      background-color: transparent;
-      border: none;
-      height: 38px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 20px;
-      cursor: pointer;
-
-      img {
-        width: 20px;
-        height: 20px;
-        margin: 3px;
-      }
-
-      &:hover {
-        background-color: rgb(211, 211, 211);
-      }
-    }
-  }
-
-  #table-container {
-    height: 650px;
-    overflow-x: auto;
-    overflow-y: auto;
-    border: 1px solid #838383;
-  }
-}
-
-========================
-$modal-bg-color: white;
-$modal-shadow-color: rgba(0, 0, 0, 0.3);
-$primary-color: #007bff;
-$error-color: red;
-$close-button-bg-color: #ccc;
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-
-  .modal {
-    background: $modal-bg-color;
-    border-radius: 8px;
-    padding: 20px;
-    width: 400px;
-    box-shadow: 0 2px 10px $modal-shadow-color;
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      .close-button {
-        background-color: transparent;
-        border: none;
-        &:hover {
-          background-color: #ccc;
-        }
-      }
-    }
-
-    .modal-body {
-      margin-top: 20px;
-
-      input {
-        width: 95%;
-        padding: 10px;
-        margin: 5px 0;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-
-      .error {
-        color: $error-color;
-        font-size: 0.9em;
-      }
-    }
-
-    .modal-footer {
-      margin-top: 20px;
-      display: flex;
-      justify-content: flex-end;
-
-      .submit-button,
-      .close-button {
-        padding: 10px 15px;
-        margin-left: 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .submit-button {
-        background-color: $primary-color;
-        color: white;
-      }
-
-      .close-button {
-        background-color: $close-button-bg-color;
-      }
-    }
-  }
-}
-
-==================
-$pagination-border-color: #ddd;
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid $pagination-border-color;
-
-  span {
-    margin: 0 10px;
-  }
-
-  button {
-    padding: 5px 10px;
-    margin: 0 5px;
-    cursor: pointer;
-    width: 70px;
-  }
-
-  .select {
-    margin: 0 10px;
-  }
-}
-
-============================
-@mixin size($width: auto, $height: auto) {
-  width: $width;
-  height: $height;
-}
-
-========================
-.add-to-playlist-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
-
-  &.show {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-}
-
-.add-to-playlist-modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.add-to-playlist-select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.add-button,
-.create-playlist-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 10px;
-  cursor: pointer;
-  margin-bottom: 10px;
-  &:hover {
-    background: #0056b3;
-  }
-}
-
-.button-container {
-  display: flex;
-  justify-content: center;
-}
-
-.add-button-container,
-.create-playlist-button-container {
-  display: flex;
-  justify-content: center;
-}
-
-.close-button {
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 10px;
-  cursor: pointer;
-
-  &:hover {
-    background: #c82333;
-  }
-}
-==================================
-@import "header";
-@import "main";
-@import "footer";
-@import "pagination";
-@import "modifySongModal";
-
-* {
-  margin: 0;
-}
-
-==============
-$modal-bg-color: white;
-$modal-shadow-color: rgba(0, 0, 0, 0.3);
-$primary-color: #007bff;
-$error-color: red;
-$close-button-bg-color: #ccc;
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-
-  .modal {
-    background: $modal-bg-color;
-    border-radius: 8px;
-    padding: 20px;
-    width: 400px;
-    box-shadow: 0 2px 10px $modal-shadow-color;
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      .close-button {
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
-        &:hover {
-          background-color: $close-button-bg-color;
-        }
-      }
-    }
-
-    .modal-body {
-      margin-top: 20px;
-
-      input {
-        width: 95%;
-        padding: 10px;
-        margin: 5px 0;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-
-      h4 {
-        margin: 10px 0;
-      }
-
-      label {
-        display: block;
-        margin: 5px 0;
-      }
-
-      select {
-        width: 100%;
-        height: 100px; // Adjust height to show more options
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        margin-bottom: 15px; // Space below the select
-      }
-    }
-
-    .modal-footer {
-      margin-top: 20px;
-      display: flex;
-      justify-content: flex-end;
-
-      .submit-button,
-      .close-button {
-        padding: 10px 15px;
-        margin-left: 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .submit-button {
-        background-color: $primary-color;
-        color: white;
-      }
-
-      .close-button {
-        background-color: $close-button-bg-color;
-      }
-    }
-  }
-}
-=============
-.player-container {
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.player-container img {
-  width: 90%;
-  padding-top: 20px;
-}
-
-.button-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  button {
-    background: none;
-    border: none;
-
-    img {
-      width: 70%;
-      padding: 0;
-    }
-    &:hover {
-      background-color: transparent;
-    }
-  }
-}
-
-====================
-const PLAYLISTS_URL = "http://localhost:5000/playlists";
-
-export const getPlaylistsApi = async () => {
-  try {
-    const response = await fetch(PLAYLISTS_URL);
-    if (!response.ok) throw new Error("Network connection error");
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-};
-
-export const getPlaylistApi = async (id) => {
-  try {
-    const response = await fetch(`${PLAYLISTS_URL}/${id}`);
-    if (!response.ok) throw new Error("Network connection error");
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-export const deletePlaylistApi = async (id) => {
-  try {
-    const response = await fetch(`${PLAYLISTS_URL}/${id}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) throw new Error("Failed to delete song");
-    return id;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-export const addPlaylistsApi = async (newPlaylist) => {
-  try {
-    const response = await fetch(PLAYLISTS_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newPlaylist),
-    });
-    if (!response.ok) throw new Error("Failed to add playlist");
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-export const updatePlaylistApi = async (id, updatedPlaylist) => {
-  try {
-    const response = await fetch(`${PLAYLISTS_URL}/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedPlaylist),
-    });
-    if (!response.ok) throw new Error("Failed to update playlist");
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-==============================
-const SONGS_URL = "http://localhost:5000/songs";
-const PLAYLISTS_URL = "http://localhost:5000/playlists";
-
-export const getSongsApi = async () => {
-  try {
-    const response = await fetch(SONGS_URL);
-    if (!response.ok) throw new Error("Network connection error");
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching songs:", error);
-    return [];
-  }
-};
-
-export const deleteSongApi = async (id) => {
-  try {
-    const response = await fetch(`${SONGS_URL}/${id}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) throw new Error("Failed to delete song");
-    return id;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-export const updateSongApi = async (id, updatedSong) => {
-  try {
-    const response = await fetch(`${SONGS_URL}/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedSong),
-    });
-    if (!response.ok) throw new Error("Failed to update song");
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-export const addSongApi = async (newSong) => {
-  try {
-    const response = await fetch(SONGS_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newSong),
-    });
-    if (!response.ok) throw new Error("Failed to add song");
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-export const addSongToPlaylistApi = async (song, playlistId) => {
-  try {
-    const response = await fetch(`${PLAYLISTS_URL}/${playlistId}`);
-    if (!response.ok) throw new Error("Failed to fetch playlist");
-
-    const playlist = await response.json();
-    playlist.songs.push(song);
-    const updateResponse = await fetch(`${PLAYLISTS_URL}/${playlistId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(playlist),
-    });
-
-    if (!updateResponse.ok) throw new Error("Failed to update playlist");
-
-    return await updateResponse.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-=================
-
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import "./scss/index.scss";
-import Main from "./components/Main";
-
-function App() {
   return (
-    <>
-      <Header />
-      <Main />
-      <Footer />
-    </>
+    <div id="table-container">
+      <table id="table">
+        <thead>
+          <tr id="fixed-title">
+            <th className="checkBox-column">
+              <input
+                id="checkBoxAll"
+                type="checkbox"
+                onChange={handleToggleAll}
+                checked={currentSongs.length > 0 && isAllChecked}
+                disabled={currentSongs.length === 0}
+              />
+            </th>
+            <th className="name-column">Name</th>
+            <th className="artist-column">Artist</th>
+            <th className="action-column">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentSongs.map((song, index) => (
+            <tr key={song.id}>
+              <th>
+                <input
+                  type="checkbox"
+                  checked={checkState[startIndex + index] || false}
+                  onChange={() => handleCheckboxChange(index)}
+                />
+              </th>
+              <td>{song.songName}</td>
+              <td>{song.artist}</td>
+              <td>
+                <button onClick={() => handlePlaySong(song)}>
+                  <img src={play} alt="play-song-icon" />
+                  Play
+                </button>
+                <button onClick={() => handleAddToPlaylist(song)}>
+                  <img src={addToPlaylists} alt="add-to-playlist-icon" />
+                  Add to playlists
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedSong(song);
+                    setEditModalShow(true);
+                  }}
+                >
+                  <img src={edit} alt="edit-song-icon" />
+                  Edit
+                </button>
+                <button onClick={() => deleteOneSong(song.id)}>
+                  <img src={del} alt="delete-song-icon" />
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {selectedSongForPlaylist && (
+        <AddToPlaylistModal
+          show={addToPlaylistModalShow}
+          onHide={() => setAddToPlaylistModalShow(false)}
+          song={selectedSongForPlaylist}
+          onAddToPlaylist={addToPlaylist}
+        />
+      )}
+    </div>
   );
 }
-
-export default App;
-
+===================
 
