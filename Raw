@@ -1,1571 +1,2384 @@
-import { useState } from 'react';
+import { Routes } from '@angular/router';
+import { SongManagerComponent } from '../components/manage/song-manager/song-manager.component';
+import { PlaylistManagerComponent } from '../components/manage/playlist-manager/playlist-manager.component';
+import { SongPlayerComponent } from '../components/song-player/song-player.component';
 
-export default function AddSongModal({ show, onHide, onCreatePlaylist }) {
+export const routes: Routes = [
+  { path: '', component: SongManagerComponent, title: 'Home' },
+  // { path: 'song', component: SongManagerComponent, title: 'Song' },
+  // { path: 'playlist', component: PlaylistManagerComponent, title: 'Playlist' },
+  // { path: '', redirectTo: '/', pathMatch: 'full' },
+  //   { path: 'song-player', component: SongPlayerComponent, title: '' },
+];
 
-    const [songName, setSongName] = useState('');
-    const [artist, setArtist] = useState('');
-    const [album, setAlbum] = useState('');
-    const [year, setYear] = useState('');
-    const [errors, setErrors] = useState({});
-
-
-    const validate = () => {
-        const newErrors = {};
-        if (!songName) newErrors.songName = "Song name is required.";
-        if (!artist) newErrors.artist = "Artist is required.";
-        if (!album) newErrors.album = "Album is required.";
-        if (!year) newErrors.year = "Year is required.";
-        else if (isNaN(year) || year < 1900 || year > new Date().getFullYear()) {
-            newErrors.year = "Please enter a valid year.";
-        }
-        return newErrors;
-    };
-
-
-    const handleSubmit = () => {
-        const newErrors = validate();
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
-
-        const newPlaylist = { songName, artist, album, year };
-        onCreatePlaylist(newPlaylist);
-        setSongName('');
-        setArtist('');
-        setAlbum('');
-        setYear('');
-        setErrors({});
-    };
-
-    if (!show) return null;
-
-    return (
-        <div className="modal-overlay">
-            <div className="modal">
-                <div className="modal-header">
-                    <h2>Add New Song</h2>
-                    <button className="close-button" onClick={onHide}>X</button>
-                </div>
-                <div className="modal-body">
-                    <h4>song Information</h4>
-                    <input
-                        type="text"
-                        placeholder="Song Name"
-                        value={songName}
-                        onChange={(e) => setSongName(e.target.value)}
-                    />
-                    {errors.songName && <p className="error">{errors.songName}</p>}
-
-                    <input
-                        type="text"
-                        placeholder="Artist"
-                        value={artist}
-                        onChange={(e) => setArtist(e.target.value)}
-                    />
-                    {errors.artist && <p className="error">{errors.artist}</p>}
-
-                    <input
-                        type="text"
-                        placeholder="Album"
-                        value={album}
-                        onChange={(e) => setAlbum(e.target.value)}
-                    />
-                    {errors.album && <p className="error">{errors.album}</p>}
-
-                    <input
-                        type="number"
-                        placeholder="Year"
-                        value={year}
-                        onChange={(e) => setYear(e.target.value)}
-                    />
-                    {errors.year && <p className="error">{errors.year}</p>}
-                </div>
-                <div className="modal-footer">
-                    <button className="submit-button" onClick={handleSubmit}>Add Song</button>
-                    <button className="close-button" onClick={onHide}>Close</button>
-                </div>
-            </div>
-        </div>
-    );
+=======================
+<!-- <aside>
+  <section class="aside-container">
+    <button class="aside-btn" routerLink="/">Home</button>
+    <button class="aside-btn" routerLink="/song">Songs</button>
+    <button class="aside-btn" routerLink="/playlist">Playlists</button>
+    <button class="aside-btn">Albums</button>
+  </section>
+</aside> -->
+<!-- <div id="aside-anchor">
+  <aside id="aside-container">
+    <button (click)="scrollToSection('home')" class="active">Home</button>
+    <button (click)="scrollToSection('song-manager')">Songs</button>
+    <button (click)="scrollToSection('playlist-manager')">Playlists</button>
+    <button>Albums</button>
+  </aside>
+</div> -->
+<div id="aside-anchor">
+  <aside id="aside-container">
+    <button
+      (click)="scrollToSection('home')"
+      [class.active]="activeSection === 'home'"
+    >
+      Home
+    </button>
+    <button
+      (click)="scrollToSection('song-manager')"
+      [class.active]="activeSection === 'song-manager'"
+    >
+      Songs
+    </button>
+    <button
+      (click)="scrollToSection('playlist-manager')"
+      [class.active]="activeSection === 'playlist-manager'"
+    >
+      Playlists
+    </button>
+    <button
+      (click)="scrollToSection('albums')"
+      [class.active]="activeSection === 'albums'"
+    >
+      Albums
+    </button>
+  </aside>
+</div>
+============
+#aside-anchor {
+  position: relative;
+  aside {
+    width: 15%;
+    background-color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    button {
+      width: 100%;
+      background-color: transparent;
+      font-size: larger;
+      padding: 10px;
+      border: none;
+      &:hover {
+        background-color: aliceblue;
+      }
+      &.active {
+        background-color: aliceblue;
+      }
+    }
+  }
 }
+==============
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
+@Component({
+  selector: 'app-aside',
+  templateUrl: './aside.component.html',
+  styleUrls: ['./aside.component.scss'],
+  standalone: true,
+  imports: [CommonModule],
+})
+export class AsideComponent implements OnInit {
+  activeSection: string = 'home';
 
+  scrollToSection(sectionId: string): void {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 
+  ngOnInit(): void {
+    window.addEventListener('scroll', this.handleScroll.bind(this));
+  }
 
-========================================
+  // handleScroll(): void {
+  //   // console.log('ss');
+  //   const aside = document.getElementById('aside-container') as HTMLElement;
+  //   const headerHeight: number = 100;
 
-import React, { useEffect, useState } from 'react';
-import { getPlaylistsApi, getPlaylistApi, addPlaylistsApi } from '../../util/playlistsRestApi';
-// import '../../scss/AddSongToPlaylistModal.scss';
+  //   const scrollTop: number =
+  //     window.scrollY || document.documentElement.scrollTop;
 
-export default function AddToPlaylistModal({ show, onHide, song, onAddToPlaylist }) {
-    const [playlists, setPlaylists] = useState([]);
-    const [selectedPlaylist, setSelectedPlaylist] = useState('');
+  //   if (scrollTop > headerHeight) {
+  //     aside.style.position = 'fixed';
+  //     aside.style.top = '0';
+  //   } else {
+  //     aside.style.position = 'absolute';
+  //     aside.style.top = '0';
+  //   }
+  // }
 
-    const fetchPlaylists = async () => {
-        const data = await getPlaylistsApi();
-        setPlaylists(data);
-    };
+  handleScroll(): void {
+    const aside = document.getElementById('aside-container') as HTMLElement;
+    const headerHeight: number = 100;
+    const scrollTop: number =
+      window.scrollY || document.documentElement.scrollTop;
 
-    useEffect(() => {
-        fetchPlaylists();
-    }, []);
+    if (scrollTop > headerHeight) {
+      aside.style.position = 'fixed';
+      aside.style.top = '0';
+    } else {
+      aside.style.position = 'absolute';
+      aside.style.top = '0';
+    }
 
-    const handleAdd = async () => {
-        try {
-            if (song && selectedPlaylist) {
-                const playlist = await getPlaylistApi(selectedPlaylist);
-                if (playlist.songs.filter(songInPlaylist => songInPlaylist.id === song.id).length > 0) {
-                    alert('Song already added to playlist successfully!');
-                    return;
-                }
-                await onAddToPlaylist(song, selectedPlaylist);
-                onHide();
-            }
-        } catch (error) {
-            console.error(error);
+    const sections = ['home', 'song-manager', 'playlist-manager', 'albums'];
+    const windowHeight = window.innerHeight;
+
+    if (scrollTop === 0) {
+      this.activeSection = 'home';
+      return;
+    }
+
+    let activeSection: string = '';
+
+    sections.forEach((sectionId) => {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        const sectionTop = section.getBoundingClientRect().top + scrollTop;
+        const sectionHeight = section.offsetHeight;
+
+        if (
+          scrollTop >= sectionTop - windowHeight / 2 &&
+          scrollTop < sectionTop + sectionHeight - windowHeight / 2
+        ) {
+          activeSection = sectionId;
         }
-    };
-
-    const handleCreateNewPlaylist = async () => {
-        const nameToUse = `Playlist ${playlists.length + 1}`;
-        const newPlaylist = {
-            name: nameToUse,
-            songs: [song]
-        };
-        await addPlaylistsApi(newPlaylist);
-        onHide();
-        alert('Playlist created successfully!');
-    };
-
-    return (
-        <div className={`add-to-playlist-modal ${show ? 'show' : ''}`} onClick={onHide}>
-            <div className="add-to-playlist-modal-content" onClick={(e) => e.stopPropagation()}>
-                <h2>Add to Playlist</h2>
-                {playlists.length > 0 ? (
-                    <>
-                        <select
-                            className='add-to-playlist-select'
-                            value={selectedPlaylist}
-                            onChange={(e) => setSelectedPlaylist(e.target.value)}
-                        >
-                            <option value="" disabled>Select a playlist</option>
-                            {playlists.map((playlist) => (
-                                <option key={playlist.id} value={playlist.id}>
-                                    {playlist.name}
-                                </option>
-                            ))}
-                        </select>
-                        <div className="add-button-container">
-                            <button className="add-button" onClick={handleAdd} disabled={!selectedPlaylist}>
-                                Add to Playlist
-                            </button>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <p style={{ textAlign: "center" }}>No playlists available. Do you want to create new playlist with this song?</p>
-                        <div className="create-playlist-button-container">
-                            <button className="create-playlist-button" onClick={handleCreateNewPlaylist}>
-                                Create new playlist
-                            </button>
-                        </div>
-                    </>
-                )}
-                <div className="button-container">
-                    <button className="close-button" onClick={onHide}>Close</button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-========================================
-import { useState, useEffect } from 'react';
-import { getSongsApi } from '../../util/songsRestApi';
-
-export default function CreatePlaylistModal({ show, onHide, onCreatePlaylist, playlistLength }) {
-    const [playlistName, setPlaylistName] = useState('');
-    const [selectedSongs, setSelectedSongs] = useState([]);
-    const [songs, setSongs] = useState([]);
-
-    useEffect(() => {
-        const fetchSongs = async () => {
-            try {
-                const fetchedSongs = await getSongsApi();
-                if (Array.isArray(fetchedSongs) && fetchedSongs.length > 0) {
-                    setSongs(fetchedSongs);
-                } else {
-                    console.error("Fetched songs are not an array or are empty");
-                }
-            } catch (error) {
-                console.error("Error fetching songs:", error);
-            }
-        };
-
-        if (show) {
-            fetchSongs();
-        }
-    }, [show]);
-
-    const handleSubmit = async () => {
-        const nameToUse = playlistName.trim() || `Playlist ${playlistLength + 1}`;
-        const newPlaylist = {
-            name: nameToUse,
-            songs: selectedSongs.map(songId => {
-                const song = songs.find(s => s.id === songId);
-                return song ? { ...song } : null;
-            }).filter(Boolean)
-        };
-        onCreatePlaylist(newPlaylist);
-        resetFields();
-        onHide();
-    };
-
-    const resetFields = () => {
-        setPlaylistName('');
-        setSelectedSongs([]);
-    };
-
-    const handleSongSelection = (event) => {
-        const selectedOptions = Array.from(event.target.selectedOptions).map(option => option.value);
-        setSelectedSongs(selectedOptions);
-    };
-
-    if (!show) return null;
-
-    return (
-        <div className="modal-overlay">
-            <div className="modal">
-                <div className="modal-header">
-                    <h2>Create Playlist</h2>
-                    <button className="close-button" onClick={onHide}>X</button>
-                </div>
-                <div className="modal-body">
-                    <h4>Playlist Name</h4>
-                    <input
-                        type="text"
-                        placeholder="Enter playlist name"
-                        value={playlistName}
-                        onChange={(e) => setPlaylistName(e.target.value)}
-                    />
-                    <h4>Select Songs</h4>
-                    <select
-                        multiple
-                        value={selectedSongs}
-                        onChange={handleSongSelection}
-                        style={{ width: '100%', height: '100px' }}
-                    >
-                        {songs.length > 0 ? (
-                            songs.map((song) => (
-                                <option key={song.id} value={song.id}>
-                                    {song.songName} | {song.artist}
-                                </option>
-                            ))
-                        ) : (
-                            <option disabled>No songs available</option>
-                        )}
-                    </select>
-                </div>
-                <div className="modal-footer">
-                    <button className="submit-button" onClick={handleSubmit}>Add Playlist</button>
-                    <button className="close-button" onClick={onHide}>Close</button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-======================
-import { useState } from 'react';
-
-export default function EditSongModal({ show, onHide, song, onEditSong }) {
-
-    const [songName, setSongName] = useState(song.songName);
-    const [artist, setArtist] = useState(song.artist);
-    const [album, setAlbum] = useState(song.album);
-    const [year, setYear] = useState(song.year);
-    const [errors, setErrors] = useState({});
-
-    const validate = () => {
-        const newErrors = {};
-        if (!songName) newErrors.songName = "Song name is required.";
-        if (!artist) newErrors.artist = "Artist is required.";
-        if (!album) newErrors.album = "Album is required.";
-        if (!year) newErrors.year = "Year is required.";
-        else if (isNaN(year) || year < 1900 || year > new Date().getFullYear()) {
-            newErrors.year = "Please enter a valid year.";
-        }
-        return newErrors;
-    };
-
-    const handleSubmit = () => {
-        const newErrors = validate();
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
-
-        const updatedSong = { ...song, songName, artist, album, year };
-        onEditSong(updatedSong);
-        onHide();
-    };
-
-    if (!show) return null;
-
-    return (
-        <div className="modal-overlay">
-            <div className="modal">
-                <div className="modal-header">
-                    <h2>Edit Song</h2>
-                    <button className="close-button" onClick={onHide}>X</button>
-                </div>
-                <div className="modal-body">
-                    <h4>Song Information</h4>
-                    <input
-                        type="text"
-                        placeholder="Song Name"
-                        value={songName}
-                        onChange={(e) => setSongName(e.target.value)}
-                    />
-                    {errors.songName && <p className="error">{errors.songName}</p>}
-
-                    <input
-                        type="text"
-                        placeholder="Artist"
-                        value={artist}
-                        onChange={(e) => setArtist(e.target.value)}
-                    />
-                    {errors.artist && <p className="error">{errors.artist}</p>}
-
-                    <input
-                        type="text"
-                        placeholder="Album"
-                        value={album}
-                        onChange={(e) => setAlbum(e.target.value)}
-                    />
-                    {errors.album && <p className="error">{errors.album}</p>}
-
-                    <input
-                        type="number"
-                        placeholder="Year"
-                        value={year}
-                        onChange={(e) => setYear(e.target.value)}
-                    />
-                    {errors.year && <p className="error">{errors.year}</p>}
-                </div>
-                <div className="modal-footer">
-                    <button className="submit-button" onClick={handleSubmit}>Save Changes</button>
-                    <button className="close-button" onClick={onHide}>Close</button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-
-=================
-import { useState, useEffect } from 'react';
-import { getSongsApi } from '../../util/songsRestApi';
-import { updatePlaylistApi } from '../../util/playlistsRestApi';
-
-export default function UpdatePlaylistModal({ show, onHide, onUpdatePlaylist, selectedPlaylist }) {
-    const [playlistName, setPlaylistName] = useState('');
-    const [selectedSongs, setSelectedSongs] = useState([]);
-    const [songs, setSongs] = useState([]);
-
-    useEffect(() => {
-        const fetchSongs = async () => {
-            try {
-                const fetchedSongs = await getSongsApi();
-                if (Array.isArray(fetchedSongs) && fetchedSongs.length > 0) {
-                    setSongs(fetchedSongs);
-                } else {
-                    console.error("Fetched songs are not an array or are empty");
-                }
-            } catch (error) {
-                console.error("Error fetching songs:", error);
-            }
-        };
-
-        if (show) {
-            fetchSongs();
-            if (selectedPlaylist) {
-                setPlaylistName(selectedPlaylist.name);
-                setSelectedSongs(selectedPlaylist.songs.map(song => song.id));
-            }
-        }
-    }, [show, selectedPlaylist]);
-
-    const handleSubmit = async () => {
-        const updatedPlaylist = {
-            id: selectedPlaylist.id,
-            name: playlistName.trim(),
-            songs: selectedSongs.map(songId => {
-                const song = songs.find(s => s.id === songId);
-                return song ? { ...song } : null;
-            }).filter(Boolean)
-        };
-        const updatedResponse = await updatePlaylistApi(selectedPlaylist.id, updatedPlaylist);
-        onUpdatePlaylist(updatedResponse);
-        resetFields();
-        onHide();
-    };
-
-    const resetFields = () => {
-        setPlaylistName('');
-        setSelectedSongs([]);
-    };
-
-    const handleSongSelection = (event) => {
-        const selectedOptions = Array.from(event.target.selectedOptions).map(option => option.value);
-        setSelectedSongs(selectedOptions);
-    };
-
-    if (!show) return null;
-
-    return (
-        <div className="modal-overlay">
-            <div className="modal">
-                <div className="modal-header">
-                    <h2>Update Playlist</h2>
-                    <button className="close-button" onClick={onHide}>X</button>
-                </div>
-                <div className="modal-body">
-                    <h4>Playlist Name</h4>
-                    <input
-                        type="text"
-                        placeholder="Enter playlist name"
-                        value={playlistName}
-                        onChange={(e) => setPlaylistName(e.target.value)}
-                    />
-                    <h4>Select Songs</h4>
-                    <select
-                        multiple
-                        value={selectedSongs}
-                        onChange={handleSongSelection}
-                        style={{ width: '100%', height: '100px' }}
-                    >
-                        {songs.length > 0 ? (
-                            songs.map((song) => (
-                                <option key={song.id} value={song.id}>
-                                    {song.songName} | {song.artist}
-                                </option>
-                            ))
-                        ) : (
-                            <option disabled>No songs available</option>
-                        )}
-                    </select>
-                </div>
-                <div className="modal-footer">
-                    <button className="submit-button" onClick={handleSubmit}>Update Playlist</button>
-                    <button className="close-button" onClick={onHide}>Close</button>
-                </div>
-            </div>
-        </div>
-    );
-}
-=====================
-import { Link } from "react-router-dom";
-import SongPlayer from "./SongPlayer"
-
-export default function Aside() {
-
-    return (
-        <aside>
-            <>
-                <Link
-                    to='/songs'
-                    style={{
-                        textDecoration: 'none',
-                        color: 'inherit'
-                    }}
-                >
-                    <button>
-                        Songs
-                    </button>
-                </Link>
-
-                <Link
-                    to='/playlists'
-                    style={{
-                        textDecoration: 'none',
-                        color: 'inherit'
-                    }}
-                >
-                    <button>
-                        Playlist
-                    </button>
-                </Link>
-                <SongPlayer></SongPlayer>
-
-            </>
-        </aside>
-    );
-}
-=====================
-import { Route, Routes } from 'react-router-dom';
-import Aside from "./Aside";
-import Direction from "./Direction";
-import ManageSongs from './ManageSongs';
-import ManagePlayLists from './ManagePlaylists'
-import { useState } from 'react';
-import Home from './Home';
-import { SongProvider } from './SongContext';
-
-export default function Main() {
-  const [path, setPath] = useState('');
-  const [songs, setSongsToPlay] = useState([]);
-
-
-
-  return (
-    <SongProvider>
-      <main>
-        <Aside />
-        <section id="main-section">
-          <Direction path={path} />
-          <Routes>
-            <Route path='/' element={<Home setPath={setPath} songs={songs.length > 0 ? songs : []} />} />
-            <Route path='/songs' element={<ManageSongs setPath={setPath} setSongsToPlay={setSongsToPlay} />} />
-            <Route path='/playlists' element={<ManagePlayLists setPath={setPath} />} />
-          </Routes>
-        </section>
-      </main>
-    </SongProvider>
-  );
-}
-
-=========================
-import { useState, useEffect } from 'react';
-import {
-    getPlaylistsApi,
-    addPlaylistsApi,
-    updatePlaylistApi,
-    deletePlaylistApi
-} from '../util/playlistsRestApi';
-import PlaylistTable from "./PlaylistTable";
-import NavPlaylist from './NavPlaylist';
-import PlaylistsPagination from './PlaylistsPagination';
-import CreatePlaylistModal from './modal/CreatePlaylistModal';
-import UpdatePlaylistModal from './modal/UpdatePlaylistModal';
-
-export default function ManagePlaylists({ setPath }) {
-
-    const [playlists, setPlaylists] = useState([]);
-    const [checkState, setCheckState] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [isAllChecked, setIsAllChecked] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(14);
-    const [modalShow, setModalShow] = useState(false);
-    const [editModalShow, setEditModalShow] = useState(false);
-    const [selectedPlaylist, setSelectedPlaylist] = useState(null);
-
-    const fetchPlaylists = async () => {
-        const data = await getPlaylistsApi();
-        setPlaylists(data);
-        setCheckState(Array(data.length).fill(false));
-    };
-
-    useEffect(() => {
-        fetchPlaylists();
-    }, []);
-
-    useEffect(() => {
-        setPath(">> Playlist");
-    }, [setPath]);
-
-    const filteredPlaylists = playlists.filter(playlist => {
-        const lowercasedSearchTerm = searchTerm.toLowerCase();
-        return (
-            playlist.name.toLowerCase().includes(lowercasedSearchTerm) ||
-            playlist.songs.length === parseInt(searchTerm)
-        );
+      }
     });
 
-    const totalPlaylists = filteredPlaylists.length;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentPlaylists = filteredPlaylists.slice(startIndex, startIndex + itemsPerPage);
-
-    useEffect(() => {
-        if (currentPlaylists.length === 0) {
-            setIsAllChecked(false);
-        } else {
-            const allChecked = currentPlaylists.every((_, index) => checkState[startIndex + index]);
-            setIsAllChecked(allChecked);
-        }
-    }, [checkState, currentPlaylists, startIndex]);
-
-    const handleCheckboxChange = (index) => {
-        const updatedCheckState = [...checkState];
-        updatedCheckState[startIndex + index] = !updatedCheckState[startIndex + index];
-        setCheckState(updatedCheckState);
-    };
-
-    const handleToggleAll = (e) => {
-        const isChecked = e.target.checked;
-        const updatedCheckState = checkState.map((checked, index) => {
-            const isInCurrentPage = index >= startIndex && index < startIndex + itemsPerPage;
-            return isInCurrentPage ? isChecked : checked;
-        });
-        setCheckState(updatedCheckState);
-    };
-
-    const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value.trim());
-        setCurrentPage(1);
-        setIsAllChecked(false);
-    };
-
-    const handlePageChange = (page, newItemsPerPage) => {
-        setItemsPerPage(newItemsPerPage || itemsPerPage);
-        setCurrentPage(page);
-    };
-
-    const deletePlaylists = async () => {
-        try {
-            const idsToDelete = filteredPlaylists
-                .filter((_, index) => checkState[startIndex + index])
-                .map(playlist => playlist.id);
-
-            if (idsToDelete.length === 0) {
-                window.alert("No playlists selected for deletion.");
-                return;
-            }
-
-            const confirmDelete = window.confirm('Are you sure you want to delete the selected playlists?');
-            if (confirmDelete) {
-                for (const id of idsToDelete) {
-                    await deletePlaylistApi(id);
-                }
-                const updatedPlaylists = playlists.filter(playlist => !idsToDelete.includes(playlist.id));
-                setPlaylists(updatedPlaylists);
-                setCheckState(Array(updatedPlaylists.length).fill(false));
-                setIsAllChecked(false);
-            }
-        } catch (error) {
-            console.error("Failed to delete playlists", error);
-        }
-    };
-
-    const deleteOnePlaylist = async (id) => {
-        try {
-            const confirmDelete = window.confirm('Are you sure you want to delete this playlist?');
-            if (confirmDelete) {
-                await deletePlaylistApi(id);
-                const updatedPlaylists = playlists.filter(playlist => playlist.id !== id);
-                setPlaylists(updatedPlaylists);
-                setCheckState(checkState.filter((_, index) => playlists[index].id !== id));
-                setIsAllChecked(false);
-            }
-        } catch (error) {
-            console.error("Failed to delete playlist", error);
-        }
-    };
-
-    const handleCreatePlaylist = async (newPlaylist) => {
-        const addedPlaylist = await addPlaylistsApi(newPlaylist);
-        if (addedPlaylist) {
-            fetchPlaylists();
-        }
-    };
-
-    const handleUpdatePlaylist = async (updatedPlaylist) => {
-        await updatePlaylistApi(updatedPlaylist.id, updatedPlaylist);
-        setPlaylists(prevPlaylists =>
-            prevPlaylists.map(playlist => (playlist.id === updatedPlaylist.id ? updatedPlaylist : playlist))
-        );
-        setEditModalShow(false);
-    };
-
-    const editPlaylist = (playlist) => {
-        setSelectedPlaylist(playlist);
-        setEditModalShow(true);
-    };
-
-    const selectedItemsCount = checkState.filter(Boolean).length;
-
-    return (
-        <>
-            <NavPlaylist
-                onSearchChange={handleSearchChange}
-                deletePlaylists={deletePlaylists}
-                showModal={() => setModalShow(true)}
-            />
-            <PlaylistTable
-                playlists={currentPlaylists}
-                checkState={checkState}
-                handleCheckboxChange={handleCheckboxChange}
-                handleToggleAll={handleToggleAll}
-                deleteOnePlaylist={deleteOnePlaylist}
-                setEditModalShow={setEditModalShow}
-                setSelectedPlaylist={editPlaylist}
-                isAllChecked={isAllChecked}
-            />
-            <PlaylistsPagination
-                totalItems={totalPlaylists}
-                itemsPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-                selectedItemsCount={selectedItemsCount}
-            />
-            <CreatePlaylistModal
-                show={modalShow}
-                onHide={() => setModalShow(false)}
-                onCreatePlaylist={handleCreatePlaylist}
-                playlistLength={playlists.length}
-            />
-            <UpdatePlaylistModal
-                show={editModalShow}
-                onHide={() => setEditModalShow(false)}
-                onUpdatePlaylist={handleUpdatePlaylist}
-                selectedPlaylist={selectedPlaylist}
-            />
-        </>
-    );
+    if (activeSection) {
+      this.activeSection = activeSection;
+    }
+  }
 }
-
-
-========================
-import { useState, useEffect } from 'react';
-import { getSongsApi, deleteSongApi, addSongApi, updateSongApi } from "../util/songsRestApi";
-import SongsPagination from './SongsPagination';
-import AddSongModal from './modal/AddSongModal';
-import EditSongModal from './modal/EditSongModal';
-import NavSong from "./NavSong";
-import SongTable from "./SongTable";
-import { addSongToPlaylistApi } from '../util/songsRestApi';
-
-export default function ManageSongs({ setPath }) {
-    const [songs, setSongs] = useState([]);
-    const [checkState, setCheckState] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [isAllChecked, setIsAllChecked] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(14);
-    const [modalShow, setModalShow] = useState(false);
-    const [editModalShow, setEditModalShow] = useState(false);
-    const [selectedSong, setSelectedSong] = useState(null);
-
-    const fetchSongs = async () => {
-        const data = await getSongsApi();
-        setSongs(data);
-        setCheckState(Array(data.length).fill(false));
-    };
-
-    useEffect(() => {
-        fetchSongs();
-    }, []);
-
-
-    useEffect(() => {
-        setPath(">> Songs");
-    }, [setPath]);
-
-    const filteredSongs = songs.filter(song =>
-        song.songName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        song.artist.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const totalSongs = filteredSongs.length;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentSongs = filteredSongs.slice(startIndex, startIndex + itemsPerPage);
-
-    useEffect(() => {
-        const allChecked = currentSongs.every((_, index) => checkState[startIndex + index]);
-        setIsAllChecked(allChecked);
-    }, [checkState, currentSongs, startIndex]);
-
-
-    const handleSearchChange = (e) => {
-        const trimmedValue = e.target.value.trim();
-        setSearchTerm(trimmedValue);
-        setCurrentPage(1);
-        setIsAllChecked(false);
-    };
-
-    const deleteSongs = async () => {
-        try {
-            const idSongs = filteredSongs
-                .filter((_, index) => checkState[startIndex + index])
-                .map(song => song.id);
-
-            if (idSongs.length === 0) {
-                window.alert("No songs selected for deletion.");
-                return;
-            }
-
-            const confirmDelete = window.confirm('Are you sure! you want to delete the selected songs ?');
-            if (confirmDelete) {
-                for (const id of idSongs) {
-                    await deleteSongApi(id);
-                }
-                const updatedSongs = songs.filter(song => !idSongs.includes(song.id));
-                setSongs(updatedSongs);
-                setCheckState(Array(updatedSongs.length).fill(false));
-                setIsAllChecked(false);
-            }
-        } catch (error) {
-            console.error("Failed to delete songs", error);
-        }
-    };
-
-    const handleCheckboxChange = (index) => {
-        const updatedCheckState = [...checkState];
-        updatedCheckState[startIndex + index] = !updatedCheckState[startIndex + index];
-        setCheckState(updatedCheckState);
-    };
-
-    const handleToggleAll = (e) => {
-        const isChecked = e.target.checked;
-        const updatedCheckState = checkState.map((checked, index) => {
-            const isInCurrentPage = index >= startIndex && index < startIndex + itemsPerPage;
-            return isInCurrentPage ? isChecked : checked;
-        });
-        setCheckState(updatedCheckState);
-    };
-
-    const deleteOneSong = async (id) => {
-        try {
-            const confirmDelete = window.confirm('Are you sure! you want to delete this song ?');
-            if (confirmDelete) {
-                await deleteSongApi(id);
-                const updatedSongs = songs.filter(song => song.id !== id);
-                setSongs(updatedSongs);
-                setCheckState(checkState.filter((_, index) => songs[index].id !== id));
-                setIsAllChecked(false);
-            }
-        } catch (error) {
-            console.error("Failed to delete song", error);
-        }
-    };
-
-
-    const handleAddSong = async (newSong) => {
-        try {
-            const addedSong = await addSongApi(newSong);
-            setSongs(prevSongs => [...prevSongs, addedSong]);
-            setModalShow(false);
-        } catch (error) {
-            console.error("Failed to add song", error);
-        }
-    };
-
-    const handleEditSong = async (updatedSong) => {
-        try {
-            await updateSongApi(updatedSong.id, updatedSong);
-            setSongs(prevSongs => prevSongs.map(song => (song.id === updatedSong.id ? updatedSong : song)));
-            setEditModalShow(false);
-        } catch (error) {
-            console.error("Failed to edit song", error);
-        }
-    };
-
-    const selectedItemsCount = checkState.filter(Boolean).length;
-
-    const addToPlaylist = async (song, playlistId) => {
-        try {
-            await addSongToPlaylistApi(song, playlistId);
-            alert('Song added to playlist successfully!');
-        } catch (error) {
-            console.error('Failed to add song to playlist:', error);
-            alert('Failed to add song to playlist.');
-        }
-    };
-
-    return (
-        <>
-            <NavSong onSearchChange={handleSearchChange} deleteSongs={deleteSongs} showModal={() => setModalShow(true)} />
-            <SongTable
-                currentSongs={currentSongs}
-                checkState={checkState}
-                startIndex={startIndex}
-                handleCheckboxChange={handleCheckboxChange}
-                handleToggleAll={handleToggleAll}
-                deleteOneSong={deleteOneSong}
-                setEditModalShow={setEditModalShow}
-                setSelectedSong={setSelectedSong}
-                isAllChecked={isAllChecked}
-                addToPlaylist={addToPlaylist}
-            />
-            <SongsPagination
-                totalItems={totalSongs}
-                itemsPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={(page, newItemsPerPage) => {
-                    setItemsPerPage(newItemsPerPage || itemsPerPage);
-                    setCurrentPage(page);
-                }}
-                selectedItemsCount={selectedItemsCount}
-            />
-            <AddSongModal show={modalShow} onHide={() => setModalShow(false)} onAddSong={handleAddSong} />
-            {selectedSong && (
-                <EditSongModal
-                    show={editModalShow}
-                    onHide={() => setEditModalShow(false)}
-                    song={selectedSong}
-                    onEditSong={handleEditSong}
-                />
-            )}
-        </>
-    );
-}
-
-================
-import { useState } from 'react';
-import search from "../img/search-icon.png";
-import add from "../img/add-icon.png";
-import del from "../img/delete-icon.png";
-
-export default function NavPlaylist({ onSearchChange, deletePlaylists, showModal }) {
-    const [showSearch, setShowSearch] = useState(false);
-
-    const toggleSearch = () => {
-        setShowSearch(!showSearch);
-        if (showSearch) {
-            onSearchChange({ target: { value: '' } });
-        }
-    };
-
-    return (
-        <section id="functionally">
-            <nav>
-                <ul id="left">
-                    <h2>Manage playlists</h2>
-                </ul>
-                <ul id="right">
-                    {!showSearch ? (
-                        <>
-                            <button onClick={showModal}>
-                                <img src={add} alt="add-playlist-icon" />
-                                Add
-                            </button>
-                            <button onClick={deletePlaylists}>
-                                <img src={del} alt="delete-playlist-icon" />
-                                Delete
-                            </button>
-                        </>
-                    ) : (
-                        <button onClick={deletePlaylists}>
-                            <img src={del} alt="delete-playlist-icon" />
-                            Delete
-                        </button>
-                    )}
-                    <button onClick={toggleSearch}>
-                        <img src={search} alt="search-playlist-icon" />
-                        {showSearch ? "Close" : "Search"}
-                    </button>
-                    {showSearch && (
-                        <div className="search-container">
-                            <input
-                                type="text"
-                                className="search-input"
-                                placeholder="Search for a playlist..."
-                                onChange={onSearchChange}
-                            />
-                        </div>
-                    )}
-                </ul>
-            </nav>
-        </section>
-    );
-}
-
+=====================
+<div id="aside-anchor">
+  <aside id="aside-container">
+    <button (click)="scrollToSection('home')">Home</button>
+    <button (click)="scrollToSection('song-manager')">Songs</button>
+    <button (click)="scrollToSection('playlist-manager')">Playlists</button>
+    <button>Albums</button>
+    <section><app-song-player></app-song-player></section>
+  </aside>
+</div>
+<!-- <div id="aside-anchor">
+  <aside id="aside-container">
+    <button
+      (click)="scrollToSection('home')"
+      [class.active]="activeSection === 'home'"
+    >
+      Home
+    </button>
+    <button
+      (click)="scrollToSection('song-manager')"
+      [class.active]="activeSection === 'song-manager'"
+    >
+      Songs
+    </button>
+    <button
+      (click)="scrollToSection('playlist-manager')"
+      [class.active]="activeSection === 'playlist-manager'"
+    >
+      Playlists
+    </button>
+    <button
+      (click)="scrollToSection('albums')"
+      [class.active]="activeSection === 'albums'"
+    >
+      Albums
+    </button>
+  </aside>
+</div> -->
 ==============
-import { useState } from 'react';
-import search from "../img/search-icon.png";
-import add from "../img/add-icon.png";
-import del from "../img/delete-icon.png";
 
-export default function NavSong({ onSearchChange, deleteSongs, showModal }) {
-    const [showSearch, setShowSearch] = useState(false);
-
-    const toggleSearch = () => {
-        setShowSearch(!showSearch);
-        if (showSearch) {
-            onSearchChange({ target: { value: '' } });
-        }
-    };
-
-    return (
-        <section id="functionally">
-            <nav>
-                <ul id="left">
-                    <h2>Manage songs</h2>
-                </ul>
-                <ul id="right">
-                    {!showSearch ? (
-                        <>
-                            <button onClick={showModal}>
-                                <img src={add} alt="add-song-icon" />
-                                Add
-                            </button>
-                            <button onClick={deleteSongs}>
-                                <img src={del} alt="delete-song-icon" />
-                                Delete
-                            </button>
-                        </>
-                    ) : (
-                        <button onClick={deleteSongs}>
-                            <img src={del} alt="delete-song-icon" />
-                            Delete
-                        </button>
-                    )}
-                    <button onClick={toggleSearch}>
-                        <img src={search} alt="search-song-icon" />
-                        {showSearch ? "Close" : "Search"}
-                    </button>
-                    {showSearch && (
-                        <div className="search-container">
-                            <input
-                                type="text"
-                                className="search-input"
-                                placeholder="Search for a song..."
-                                onChange={onSearchChange}
-                            />
-                        </div>
-                    )}
-                </ul>
-            </nav>
-        </section>
-    );
+#aside-anchor {
+  position: relative;
+  aside {
+    width: 15%;
+    background-color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    button {
+      width: 100%;
+      background-color: transparent;
+      font-size: larger;
+      padding: 10px;
+      border: none;
+      &:hover {
+        background-color: aliceblue;
+      }
+    }
+  }
 }
-
 ==========
-function PlaylistsPagination({ totalItems, itemsPerPage, currentPage, onPageChange, selectedItemsCount }) {
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+import { Component } from '@angular/core';
+import { SongPlayerComponent } from '../song-player/song-player.component';
+import { RouterLink, RouterOutlet } from '@angular/router';
 
-    const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            onPageChange(page);
-        }
-    };
+@Component({
+  selector: 'app-aside-song-play',
+  standalone: true,
+  imports: [SongPlayerComponent, RouterOutlet, RouterLink],
+  templateUrl: './aside-song-play.component.html',
+  styleUrl: './aside-song-play.component.scss',
+})
+export class AsideSongPlayComponent {
+  activeSection: string = 'home';
 
-    return (
-        <div className="pagination">
-            <span>Total Items: {totalItems}</span>
-            <span>Page size:
-                <select
-                    defaultValue={itemsPerPage}
-                    onChange={(e) => onPageChange(1, e.target.value)}
-                >
-                    <option value={14}>14</option>
-                    <option value={30}>30</option>
-                    <option value={50}>50</option>
-                </select>
-            </span>
-            <span>Selected Items: {selectedItemsCount}</span>
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
-            <span>{currentPage} / {totalPages}</span>
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
-        </div>
-    );
+  scrollToSection(sectionId: string): void {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  ngOnInit(): void {
+    window.addEventListener('scroll', this.handleScroll.bind(this));
+  }
+
+  // handleScroll(): void {
+  //   // console.log('ss');
+  //   const aside = document.getElementById('aside-container') as HTMLElement;
+  //   const headerHeight: number = 100;
+
+  //   const scrollTop: number =
+  //     window.scrollY || document.documentElement.scrollTop;
+
+  //   if (scrollTop > headerHeight) {
+  //     aside.style.position = 'fixed';
+  //     aside.style.top = '0';
+  //   } else {
+  //     aside.style.position = 'absolute';
+  //     aside.style.top = '0';
+  //   }
+  // }
+
+  handleScroll(): void {
+    const aside = document.getElementById('aside-container') as HTMLElement;
+    const headerHeight: number = 100;
+    const scrollTop: number =
+      window.scrollY || document.documentElement.scrollTop;
+
+    if (scrollTop > headerHeight) {
+      aside.style.position = 'fixed';
+      aside.style.top = '0';
+    } else {
+      aside.style.position = 'absolute';
+      aside.style.top = '0';
+    }
+
+    //   const sections = ['home', 'song-manager', 'playlist-manager', 'albums'];
+    //   const windowHeight = window.innerHeight;
+
+    //   if (scrollTop === 0) {
+    //     this.activeSection = 'home';
+    //     return;
+    //   }
+
+    //   let activeSection: string = '';
+
+    //   sections.forEach((sectionId) => {
+    //     const section = document.getElementById(sectionId);
+    //     if (section) {
+    //       const sectionTop = section.getBoundingClientRect().top + scrollTop;
+    //       const sectionHeight = section.offsetHeight;
+
+    //       if (
+    //         scrollTop >= sectionTop - windowHeight / 2 &&
+    //         scrollTop < sectionTop + sectionHeight - windowHeight / 2
+    //       ) {
+    //         activeSection = sectionId;
+    //       }
+    //     }
+    //   });
+
+    //   if (activeSection) {
+    //     this.activeSection = activeSection;
+    //   }
+  }
+}
+========
+<footer>
+  <h6>Copyright 2014 TMA Solutions</h6>
+</footer>
+===========
+footer {
+  text-align: center;
+  width: 100%;
+  background-color: #f1f1f1;
+  bottom: 0;
+  position: fixed;
+  left: 0;
+  padding: 10px;
+}
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-footer',
+  standalone: true,
+  imports: [],
+  templateUrl: './footer.component.html',
+  styleUrl: './footer.component.scss'
+})
+export class FooterComponent {
+
+}
+===========
+<header id="home" class="section">
+  <img src="/img/music-icon.png" alt="music-icon" routerLink="/" />
+  <h1 routerLink="/">Spotifier</h1>
+</header>
+============
+header {
+  height: 100px;
+  display: flex;
+  background-color: rgb(236, 222, 255);
+  img {
+    cursor: pointer;
+  }
+  h1 {
+    color: rgb(241, 124, 124);
+    padding: 25px 0 25px 0;
+    cursor: pointer;
+  }
+}
+=============
+
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+@Component({
+  selector: 'app-header',
+  standalone: true,
+  imports: [RouterLink],
+  templateUrl: './header.component.html',
+  styleUrl: './header.component.scss',
+})
+export class HeaderComponent {}
+=============
+
+<div id="playlist-manager" class="section">
+  <app-nav-playlist
+    (deletePlaylistsEvent)="deleteSelectedPlaylists()"
+  ></app-nav-playlist>
+  <app-playlist-table></app-playlist-table>
+</div>
+============
+div {
+  width: 85%;
+  float: right;
+  padding-top: 100px;
+}
+===
+import { Component, ViewChild } from '@angular/core';
+import { NavPlaylistComponent } from '../../nav/nav-playlist/nav-playlist.component';
+import { PlaylistTableComponent } from '../../playlist-table/playlist-table.component';
+
+@Component({
+  selector: 'app-playlist-manager',
+  standalone: true,
+  imports: [NavPlaylistComponent, PlaylistTableComponent],
+  templateUrl: './playlist-manager.component.html',
+  styleUrl: './playlist-manager.component.scss',
+})
+export class PlaylistManagerComponent {
+  @ViewChild(PlaylistTableComponent) playlistTable!: PlaylistTableComponent;
+  constructor() {}
+
+  deleteSelectedPlaylists(): void {
+    this.playlistTable.deleteSelectedPlaylists();
+  }
+}
+====
+<div id="song-manager" class="section">
+  <app-nav-song
+    (deleteSongsEvent)="deleteSelectedSongs()"
+    (showAddSongModalEvent)="showAddSongModal()"
+    (searchEvent)="handleSearch($event)"
+  ></app-nav-song>
+  <!-- <app-song-table
+  (editSongEvent)="editSong($event)"
+  (playSongEvent)="handlePlaySongEvent()"
+></app-song-table> -->
+  <app-song-table (editSongEvent)="editSong($event)"></app-song-table>
+  <app-song-modal (reloadTableEvent)="reloadTable($event)"></app-song-modal>
+</div>
+===
+div {
+  width: 85%;
+  float: right;
+  padding-bottom: 170px;
 }
 
-export default PlaylistsPagination;
-============================
-import React, { useState, useEffect } from "react";
-import del from "../img/delete-icon.png";
-import edit from "../img/edit-icon.png";
-import play from "../img/play-icon.png";
-import { useSong } from './SongContext';
+==
+import { Component, ViewChild, Output, EventEmitter } from '@angular/core';
+import { SongTableComponent } from '../../song-table/song-table.component';
+import { NavSongComponent } from '../../nav/nav-song/nav-song.component';
+import { SongModalComponent } from '../../modals/song-modal/song-modal.component';
+import { Song } from '../../../models/song.model';
 
-export default function PlaylistTable({
-    playlists,
-    checkState,
-    handleCheckboxChange,
-    handleToggleAll,
-    deleteOnePlaylist,
-    setEditModalShow,
-    setSelectedPlaylist,
-    isAllChecked
-}) {
-    const [currentSongIndex, setCurrentSongIndex] = useState([]);
+@Component({
+  selector: 'app-song-manager',
+  standalone: true,
+  imports: [NavSongComponent, SongTableComponent, SongModalComponent],
+  templateUrl: './song-manager.component.html',
+  styleUrl: './song-manager.component.scss',
+})
+export class SongManagerComponent {
+  @ViewChild(SongTableComponent) songTable!: SongTableComponent;
+  @ViewChild(SongModalComponent) songModal!: SongModalComponent;
+  // @Output() playSongEvent = new EventEmitter<void>();
+  @ViewChild(NavSongComponent) navSong!: NavSongComponent;
 
-    const { setSongList, setCurrentSong, setShowSelectArea } = useSong();
+  deleteSelectedSongs(): void {
+    this.songTable.deleteSelectedSongs();
+  }
 
-    const handlePlay = (playlist) => {
-        if (playlist.songs.length === 0) {
-            alert("Playlist is empty!");
-            return;
-        }
-        setSongList(playlist.songs);
-        setCurrentSong(playlist.songs[0]);
-        setShowSelectArea(true);
-    };
+  showAddSongModal() {
+    this.songModal.handleAddSong();
+  }
 
-    useEffect(() => {
-        setCurrentSongIndex(playlists.map(() => 0));
-    }, [playlists]);
+  editSong(song: Song): void {
+    this.songModal.handleEditSong(song);
+  }
 
-    const handlePrevSong = (playlistIndex) => {
-        setCurrentSongIndex((prevState) => {
-            const newState = [...prevState];
-            const totalSongs = playlists[playlistIndex].songs.length;
-            if (totalSongs > 0) {
-                newState[playlistIndex] = (newState[playlistIndex] - 1 + totalSongs) % totalSongs;
-            }
-            return newState;
-        });
-    };
+  reloadTable(song: Song) {
+    this.songTable.modifySongTable(song);
+  }
 
-    const handleNextSong = (playlistIndex) => {
-        setCurrentSongIndex((prevState) => {
-            const newState = [...prevState];
-            const totalSongs = playlists[playlistIndex].songs.length;
-            if (totalSongs > 0) {
-                newState[playlistIndex] = (newState[playlistIndex] + 1) % totalSongs;
-            }
-            return newState;
-        });
-    };
+  handleSearch(searchKey: string) {
+    this.songTable.filterSongs(searchKey);
+  }
 
-    return (
-        <div id="table-container">
-            <table id="table">
-                <thead>
-                    <tr id="fixed-title">
-                        <th className="checkBox-column">
-                            <input
-                                id="checkBoxAll"
-                                type="checkbox"
-                                checked={isAllChecked}
-                                onChange={handleToggleAll}
-                            />
-                        </th>
-                        <th className="name-column">Name</th>
-                        <th className="action-column">Songs</th>
-                        <th className="action-column">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {playlists.length === 0 ? (
-                        <tr>
-                            <td colSpan="4">No playlists found.</td>
-                        </tr>
-                    ) : (
-                        playlists.map((playlist, index) => (
-                            <tr key={playlist.id}>
-                                <th>
-                                    <input
-                                        type="checkbox"
-                                        checked={checkState[index] || false}
-                                        onChange={() => handleCheckboxChange(index)}
-                                    />
-                                </th>
-                                <td className="name-column">{playlist.name}</td>
-                                <td className="songs-column" style={{ textAlign: "center" }}>
-                                    {playlist.songs.length > 0 ? (
-                                        <>
-                                            <div>{playlist.songs.length}</div>
-                                            <div>
-                                                <button onClick={() => handlePrevSong(index)}>{"<"}</button>
-                                                {playlist.songs[currentSongIndex[index]]?.songName || "No song"}
-                                                <button onClick={() => handleNextSong(index)}>{">"}</button>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        "No songs"
-                                    )}
-                                </td>
-                                <td className="action-column">
-                                    <button onClick={() => handlePlay(playlist)}>
-                                        <img src={play} alt="play-song-icon" />
-                                        Play
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setSelectedPlaylist(playlist);
-                                            setEditModalShow(true);
-                                        }}
-                                    >
-                                        <img src={edit} alt="edit-playlist-icon" />
-                                        Edit
-                                    </button>
-                                    <button onClick={() => deleteOnePlaylist(playlist.id)}>
-                                        <img src={del} alt="delete-playlist-icon" />
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
-        </div>
-    );
+  // handlePlaySongEvent() {
+  //   this.playSongEvent.emit();
+  // }
 }
-
-==================
-
-import React, { createContext, useContext, useState } from 'react';
-
-const SongContext = createContext();
-
-export const useSong = () => useContext(SongContext);
-
-export const SongProvider = ({ children }) => {
-    const [currentSong, setCurrentSong] = useState(null);
-    const [songList, setSongList] = useState([]);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [currentSongs, setCurrentSongs] = useState([]);
-    const [showSelectArea, setShowSelectArea] = useState(false); // Trạng thái cho vùng chọn
-
-    return (
-        <SongContext.Provider value={{
-            currentSong,
-            setCurrentSong,
-            songList,
-            setSongList,
-            isPlaying,
-            setIsPlaying,
-            currentSongs,
-            setCurrentSongs,
-            showSelectArea,
-            setShowSelectArea
-        }}>
-            {children}
-        </SongContext.Provider>
-    );
-};
-===============
-import React, { useState, useRef, useEffect } from 'react';
-import { useSong } from './SongContext';
-import TimeSlider from "react-input-slider";
-import Slider from 'react-input-slider';
-import dvd from '../img/dvd-icon.png';
-import next from '../img/next-icon.png';
-import prev from '../img/prev-icon.png';
-import pause from '../img/pause-icon.png';
-import play from '../img/play-song-icon.png';
-import repeat from "../img/repeat-icon.png";
-import volumeIcon from '../img/volume-icon.png';
-
-export default function SongPlayer() {
-    const audioRef = useRef(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState({ x: 50 });
-    const [isRepeating, setIsRepeating] = useState(false);
-
-    const { currentSong, songList, setCurrentSong, showSelectArea } = useSong();
-
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            setCurrentTime(0);
-        }
-        if (currentSong) {
-            audioRef.current.src = currentSong.audio;
-            audioRef.current.load();
-            audioRef.current.play();
-            setIsPlaying(true);
-        }
-    }, [currentSong]);
-
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.onloadeddata = () => {
-                if (isPlaying) {
-                    audioRef.current.play().catch(error => {
-                        console.error("Failed to play audio:", error);
-                    });
-                }
-            };
-        }
-    }, [currentSong, isPlaying]);
-
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.volume = volume.x / 100;
-        }
-    }, [volume]);
-
-    const handlePlayPause = () => {
-        if (audioRef.current === null) {
-            alert("Please choose song or playlist to play!");
-            return;
-        } else if (isPlaying) {
-            audioRef.current.pause();
-        } else {
-            audioRef.current.play();
-        }
-        setIsPlaying(prev => !prev);
-    };
-
-    const handleNext = () => {
-        if (isRepeating) {
-            audioRef.current.currentTime = 0;
-            audioRef.current.play();
-        } else {
-            if (!currentSong) return;
-            const currentIndex = songList.findIndex(song => song.id === currentSong.id);
-            const nextIndex = (currentIndex + 1) % songList.length;
-            setCurrentSong(songList[nextIndex]);
-        }
-    };
-
-    // const handleNext = () => {
-    //     if (!currentSong) return;
-    //     const currentIndex = songList.findIndex(song => song.id === currentSong.id);
-    //     const nextIndex = (currentIndex + 1) % songList.length;
-    //     setCurrentSong(songList[nextIndex]);
-    // };
-
-    const handlePrev = () => {
-        if (!currentSong) return;
-        const currentIndex = songList.findIndex(song => song.id === currentSong.id);
-        const prevIndex = (currentIndex - 1 + songList.length) % songList.length;
-        setCurrentSong(songList[prevIndex]);
-    };
-
-    const handleTimeSliderChange = ({ x }) => {
-        audioRef.current.currentTime = x;
-        setCurrentTime(x);
-
-        if (!isPlaying) {
-            setIsPlaying(true);
-            audioRef.current.play();
-        }
-    };
-
-    const handleSongSelect = (song) => {
-        setCurrentSong(song);
-    };
-
-    const toggleRepeat = () => {
-        setIsRepeating(prev => !prev);
-    };
-
-    return (
-        <div className="player-container">
-            <section className="icon-section">
-                <img src={dvd} alt="player-icon" />
-            </section>
-            <section>
-                <h3>{currentSong ? currentSong.songName : 'Title'}</h3>
-                <h5>{currentSong ? currentSong.artist : 'Artist'}</h5>
-            </section>
-            <TimeSlider
-                axis="x"
-                xmax={duration || 100}
-                x={currentTime || 0}
-                onChange={handleTimeSliderChange}
-            />
-            {currentSong && (
-                <audio
-                    ref={audioRef}
-                    onLoadedData={() => setDuration(audioRef.current.duration)}
-                    onTimeUpdate={() => setCurrentTime(audioRef.current.currentTime)}
-                    onEnded={handleNext}
-                />
-            )}
-            <section className='volume'>
-                <img src={volumeIcon} alt="volume" />
-                <Slider className="slider"
-                    axis="x"
-                    x={volume.x}
-                    xmin={0}
-                    xmax={100}
-                    onChange={({ x }) => setVolume({ x })}
-                />
-            </section>
-
-            <section className='song-option'>
-                <button className='btn-repeat' onClick={toggleRepeat}>
-                    <img src={repeat} alt='Repeat song' />
-                </button>
-            </section>
-            <section className="button-container">
-                <button onClick={handlePrev}>
-                    <img src={prev} alt="Previous" />
-                </button>
-                <button onClick={handlePlayPause}>
-                    <img src={isPlaying ? pause : play} alt={isPlaying ? "Pause" : "Play"} />
-                </button>
-                <button onClick={handleNext}>
-                    <img src={next} alt="Next" />
-                </button>
-            </section>
-            {showSelectArea && (
-                <section>
-                    <h3>Playlist Songs:</h3>
-                    <div className="song-list">
-                        {songList.length > 0 ? (
-                            songList.map(song => (
-                                <div
-                                    key={song.id}
-                                    onClick={() => handleSongSelect(song)}
-                                    className="song-item"
-                                >
-                                    <h5>{song.songName}</h5>
-                                </div>
-                            ))
-                        ) : (
-                            <p>No songs available in this playlist.</p>
-                        )}
-                    </div>
-                </section>
-            )}
-        </div>
-    );
-}
-
-
-================
-
-function SongsPagination({ totalItems, itemsPerPage, currentPage, onPageChange, selectedItemsCount }) {
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-    const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            onPageChange(page);
-        }
-    };
-
-    return (
-        <div className="pagination">
-            <span>Total Items: {totalItems}</span>
-            <span>Page size:
-                <select
-                    defaultValue={itemsPerPage}
-                    onChange={(e) => onPageChange(1, e.target.value)}
-                >
-                    <option value={14}>14</option>
-                    <option value={30}>30</option>
-                    <option value={50}>50</option>
-                </select>
-            </span>
-            <span>Selected Items: {selectedItemsCount}</span>
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
-            <span>{currentPage} / {totalPages}</span>
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
-        </div>
-    );
-}
-
-export default SongsPagination;
-
-====================
-import React, { useState, useEffect } from "react";
-import { useSong } from './SongContext';
-import del from "../img/delete-icon.png";
-import edit from "../img/edit-icon.png";
-import play from "../img/play-icon.png";
-import addToPlaylists from "../img/add-playlist-icon.png";
-import AddToPlaylistModal from "./modal/AddSongToPlayListModal"
-
-export default function SongTable({
-  currentSongs,
-  checkState,
-  startIndex,
-  handleCheckboxChange,
-  handleToggleAll,
-  deleteOneSong,
-  setEditModalShow,
-  setSelectedSong,
-  isAllChecked,
-  addToPlaylist
-}) {
-  const [addToPlaylistModalShow, setAddToPlaylistModalShow] = useState(false);
-  const [selectedSongForPlaylist, setSelectedSongForPlaylist] = useState(null);
-  const { setSongList, setCurrentSongs } = useSong();
-  const { setCurrentSong, setIsPlaying, setShowSelectArea } = useSong();
-
-
-  useEffect(() => {
-    setCurrentSongs(currentSongs);
-  }, [currentSongs, setSongList, setCurrentSongs]);
-
-  const handleAddToPlaylist = (song) => {
-    setSelectedSongForPlaylist(song);
-    setAddToPlaylistModalShow(true);
-  };
-
-  // const handlePlaySong = (song) => {
-  //     setCurrentSong(song);
-  //     setIsPlaying(true);
-  // };
-
-  const handlePlaySong = (song) => {
-    setSongList(currentSongs);
-    setCurrentSong(song);
-    setIsPlaying(true);
-    setShowSelectArea(false);
-  };
-
-
-  return (
-    <div id="table-container">
-      <table id="table">
-        <thead>
-          <tr id="fixed-title">
-            <th className="checkBox-column">
-              <input
-                id="checkBoxAll"
-                type="checkbox"
-                onChange={handleToggleAll}
-                checked={currentSongs.length > 0 && isAllChecked}
-                disabled={currentSongs.length === 0}
-              />
-            </th>
-            <th className="name-column">Name</th>
-            <th className="artist-column">Artist</th>
-            <th className="action-column">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentSongs.map((song, index) => (
-            <tr key={song.id}>
-              <th>
-                <input
-                  type="checkbox"
-                  checked={checkState[startIndex + index] || false}
-                  onChange={() => handleCheckboxChange(index)}
-                />
-              </th>
-              <td>{song.songName}</td>
-              <td>{song.artist}</td>
-              <td>
-                <button onClick={() => handlePlaySong(song)}>
-                  <img src={play} alt="play-song-icon" />
-                  Play
-                </button>
-                <button onClick={() => handleAddToPlaylist(song)}>
-                  <img src={addToPlaylists} alt="add-to-playlist-icon" />
-                  Add to playlists
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedSong(song);
-                    setEditModalShow(true);
-                  }}
-                >
-                  <img src={edit} alt="edit-song-icon" />
-                  Edit
-                </button>
-                <button onClick={() => deleteOneSong(song.id)}>
-                  <img src={del} alt="delete-song-icon" />
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {selectedSongForPlaylist && (
-        <AddToPlaylistModal
-          show={addToPlaylistModalShow}
-          onHide={() => setAddToPlaylistModalShow(false)}
-          song={selectedSongForPlaylist}
-          onAddToPlaylist={addToPlaylist}
-        />
-      )}
+====
+<div *ngIf="action !== 'none'" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add New Song</h2>
+      <button class="close-button" (click)="handleCloseSongModal()">X</button>
     </div>
-  );
-}
-===================
+    <div class="modal-body">
+      <input type="text" placeholder="Song Name" [(ngModel)]="song!.name" />
+      <p class="error" *ngIf="errors[0]">{{ errors[0] }}</p>
 
+      <input type="text" placeholder="Artist" [(ngModel)]="song!.artist" />
+      <p class="error" *ngIf="errors[1]">{{ errors[1] }}</p>
+
+      <input type="text" placeholder="Album" [(ngModel)]="song!.album" />
+      <input type="number" placeholder="Year" [(ngModel)]="song!.year" />
+      <p class="error" *ngIf="errors[2]">{{ errors[2] }}</p>
+      <input type="audio" placeholder="audio link" [(ngModel)]="song!.audio" />
+    </div>
+    <div class="modal-footer">
+      <button class="submit-button" (click)="handleSaveChange()">
+        Save Changes
+      </button>
+      <button class="close-button" (click)="handleCloseSongModal()">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+=============
+
+$modal-bg-color: white;
+$modal-shadow-color: rgba(0, 0, 0, 0.3);
+$primary-color: #007bff;
+$error-color: red;
+$close-button-bg-color: #ccc;
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+
+  .modal {
+    background: $modal-bg-color;
+    border-radius: 8px;
+    padding: 20px;
+    width: 400px;
+    box-shadow: 0 2px 10px $modal-shadow-color;
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .close-button {
+        background-color: transparent;
+        border: none;
+        &:hover {
+          background-color: #ccc;
+        }
+      }
+    }
+
+    .modal-body {
+      margin-top: 20px;
+
+      input {
+        width: 95%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .error {
+        color: $error-color;
+        font-size: 0.9em;
+      }
+    }
+
+    .modal-footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+
+      .submit-button,
+      .close-button {
+        padding: 10px 15px;
+        margin-left: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .submit-button {
+        background-color: $primary-color;
+        color: white;
+      }
+
+      .close-button {
+        background-color: $close-button-bg-color;
+      }
+    }
+  }
+}
+
+====
+import { Component, EventEmitter, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { SongService } from '../../../services/song.service';
+import { Song } from '../../../models/song.model';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-song-modal',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './song-modal.component.html',
+  styleUrls: ['./song-modal.component.scss'],
+})
+export class SongModalComponent {
+  @Output() reloadTableEvent = new EventEmitter<Song>();
+
+  action: string = 'none';
+
+  song: Song = {
+    name: '',
+    artist: '',
+    album: '',
+    year: '',
+    audio: '',
+  };
+
+  errors: string[] = [];
+
+  constructor(private songService: SongService) {}
+
+  resetSong(): void {
+    this.song = {
+      name: '',
+      artist: '',
+      album: '',
+      year: '',
+      audio: '',
+    };
+  }
+
+  handleAddSong(): void {
+    console.log('from song modal');
+    this.action = 'add';
+    this.resetSong();
+  }
+
+  handleEditSong(editSong: Song): void {
+    console.log('from song modal to edit:', editSong);
+    this.action = 'edit';
+    this.song = { ...editSong };
+  }
+
+  handleCloseSongModal(): void {
+    console.log('from song modal');
+    this.action = 'none';
+    this.resetSong();
+  }
+
+  validate(): string[] {
+    const newErrors: string[] = [];
+    if (!this.song?.name) newErrors[0] = 'Song name is required.';
+    if (!this.song?.artist) newErrors[1] = 'Artist is required.';
+    if (!this.song?.year) newErrors[2] = 'Year is required.';
+    else if (
+      isNaN(this.song?.year) ||
+      this.song?.year < 1900 ||
+      this.song?.year > new Date().getFullYear()
+    ) {
+      newErrors[3] = 'Please enter a valid year.';
+    }
+
+    return newErrors;
+  }
+
+  handleSaveChange(): void {
+    this.errors = this.validate();
+    if (this.action === 'add') {
+      if (this.song && this.errors.length === 0) {
+        try {
+          this.songService.addSong(this.song).subscribe(() => {
+            this.handleCloseSongModal();
+          });
+        } catch (error) {
+          console.error('Error adding song:', error);
+        }
+      }
+    } else if (this.action === 'edit' && this.song?.id) {
+      if (this.song && this.errors.length === 0) {
+        try {
+          this.songService.updateSong(this.song.id, this.song).subscribe(() => {
+            this.handleCloseSongModal();
+          });
+        } catch (error) {
+          console.error('Error updating song:', error);
+        }
+      }
+    }
+
+    this.reloadTableEvent.emit(this.song);
+  }
+}
+===
+<section id="functionally">
+    <nav>
+      <ul id="left">
+        <h2>Manage playlist</h2>
+      </ul>
+      <ul id="right">
+        <button onClick="">
+          <img src="/img/add-icon.png" alt="add-playlist-icon" />
+          Add
+        </button>
+        <button (click)="deletePlaylists()" >
+          <img src="/img/delete-icon.png" alt="delete-playlist-icon"  />
+          Delete
+        </button>
+  
+        <button onClick=>
+          <img src="/img/search-icon.png" alt="search-playlist-icon" />
+              Search   
+          </button>
+  
+        <!-- <div className="search-container">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search for a playlist..."
+            onChange="{onSearchChange}"
+          />
+        </div> -->
+      </ul>
+    </nav>
+  </section>
+  ===
+nav {
+  height: 50px;
+  background-color: rgb(210, 244, 255);
+  align-items: center;
+  display: flex;
+  padding: 0;
+  #right {
+    margin-left: auto;
+    padding: 15px;
+    display: flex;
+  }
+
+  .search-input {
+    width: 300px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  ul {
+    display: flex;
+    list-style: none;
+  }
+
+  h2 {
+    float: left;
+    margin-left: 5px;
+  }
+
+  button {
+    font-size: large;
+    color: #686868;
+    height: 50px;
+    width: 100px;
+    background-color: transparent;
+    border: none;
+
+    img {
+      width: 25px;
+      height: 25px;
+      vertical-align: middle;
+    }
+
+    &:hover {
+      background-color: rgb(255, 255, 255);
+    }
+  }
+}
+===
+import { Component, EventEmitter, Output } from '@angular/core';
+
+@Component({
+  selector: 'app-nav-playlist',
+  standalone: true,
+  imports: [],
+  templateUrl: './nav-playlist.component.html',
+  styleUrl: './nav-playlist.component.scss',
+})
+export class NavPlaylistComponent {
+  @Output() deletePlaylistsEvent = new EventEmitter<void>();
+
+  deletePlaylists = (): void => {
+    this.deletePlaylistsEvent.emit();
+  };
+}
+======
+<section id="functionally">
+  <nav>
+    <ul id="left">
+      <h2>Manage songs</h2>
+    </ul>
+    <ul *ngIf="!openSearch" id="right">
+      <button (click)="showAddSongModal()">
+        <img src="/img/add-icon.png" alt="add-playlist-icon" />
+        Add
+      </button>
+      <button (click)="deleteSongs()">
+        <img src="/img/delete-icon.png" alt="delete-playlist-icon" />
+        Delete
+      </button>
+
+      <button (click)="handleOpenSearch()">
+        <img src="/img/search-icon.png" alt="search-playlist-icon" />
+        Search
+      </button>
+    </ul>
+    <ul *ngIf="openSearch" id="right">
+      <button (click)="deleteSongs()">
+        <img src="/img/delete-icon.png" alt="delete-playlist-icon" />
+        Delete
+      </button>
+
+      <button (click)="handleOpenSearch()">
+        <img src="/img/search-icon.png" alt="search-playlist-icon" />
+        Close
+      </button>
+      <div class="search-container">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search for a song..."
+          [(ngModel)]="searchKey"
+          (ngModelChange)="handleSearch()"
+        />
+      </div>
+    </ul>
+  </nav>
+</section>
+===
+nav {
+  height: 50px;
+  background-color: rgb(210, 244, 255);
+  align-items: center;
+  display: flex;
+  padding: 0;
+  justify-content: center;
+  #right {
+    margin-left: auto;
+    padding: 15px;
+    display: flex;
+  }
+
+  ul {
+    display: flex;
+    list-style: none;
+  }
+
+  h2 {
+    float: left;
+    margin-left: 5px;
+  }
+
+  button {
+    font-size: large;
+    color: #686868;
+    height: 50px;
+    width: 100px;
+    background-color: transparent;
+    border: none;
+
+    img {
+      width: 25px;
+      height: 25px;
+      vertical-align: middle;
+    }
+
+    &:hover {
+      background-color: rgb(255, 255, 255);
+    }
+  }
+  .search-container {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    .search-input {
+      width: 300px;
+
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  }
+}
+===
+import { Component, EventEmitter, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-nav-song',
+  standalone: true,
+  imports: [FormsModule, CommonModule],
+  templateUrl: './nav-song.component.html',
+  styleUrls: ['./nav-song.component.scss'],
+})
+export class NavSongComponent {
+  @Output() deleteSongsEvent = new EventEmitter<void>();
+  @Output() showAddSongModalEvent = new EventEmitter<void>();
+  @Output() searchEvent = new EventEmitter<string>();
+
+  openSearch: boolean = false;
+  searchKey: string = '';
+
+  deleteSongs(): void {
+    this.deleteSongsEvent.emit();
+  }
+
+  showAddSongModal(): void {
+    this.showAddSongModalEvent.emit();
+  }
+
+  handleOpenSearch() {
+    this.openSearch = !this.openSearch;
+    if (!this.openSearch) {
+      this.searchKey = '';
+      this.handleSearch();
+    }
+  }
+
+  handleSearch() {
+    this.searchEvent.emit(this.searchKey);
+  }
+}
+====
+<div id="table-container">
+  <table id="table">
+    <thead>
+      <tr id="fixed-title">
+        <th class="checkBox-column">
+          <input
+            id="checkBoxAll"
+            type="checkbox"
+            [(ngModel)]="checkBoxAll"
+            (change)="handleCheckBoxAll()"
+          />
+        </th>
+        <th class="name-column">Name</th>
+        <th class="song-column">Songs</th>
+        <th class="action-column">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let playlist of getPlaylists; let i = index"
+        [attr.key]="playlist.id"
+      >
+        <td class="checkBox-column">
+          <input type="checkbox" [(ngModel)]="playlist.check" />
+        </td>
+        <td>{{ playlist.name }}</td>
+        <td>
+          <div *ngIf="playlist.songs.length > 1">
+            <div>{{ playlist.songs.length }}</div>
+
+            <div>
+              <button (click)="handlePrevSong(playlist)">&#60;</button>
+              {{ playlist.songs[playlist.songIterator].name }}
+              <button (click)="handleNextSong(playlist)">&#62;</button>
+            </div>
+          </div>
+          <div *ngIf="playlist.songs.length === 1">
+            <div>
+              {{ playlist.songs[playlist.songIterator].name }}
+            </div>
+          </div>
+          <div *ngIf="playlist.songs.length === 0">No songs</div>
+        </td>
+        <td>
+          <button (click)="playSong(playlist)">
+            <img src="/img/play-icon.png" alt="play-song-icon" />
+            Play
+          </button>
+          <button (click)="editPlaylist(playlist)">
+            <img src="/img/edit-icon.png" alt="edit-playlist-icon" />
+            Edit
+          </button>
+          <button (click)="deletePlaylist(playlist.id)">
+            <img src="/img/delete-icon.png" alt="delete-playlist-icon" />
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div *ngIf="errorMessage">{{ errorMessage }}</div>
+</div>
+==
+#table-container {
+  height: 650px;
+  overflow-x: auto;
+  overflow-y: auto;
+  border: 1px solid #838383;
+  // width: 85%;
+  // float: right;
+
+  table {
+    width: 100%;
+    border: #686868 1px solid;
+
+    #fixed-title {
+      position: sticky;
+      top: 0;
+      background-color: whitesmoke;
+    }
+
+    th {
+      padding: 10px 0;
+    }
+
+    td {
+      text-align: center;
+    }
+
+    tr {
+      &:nth-child(even) {
+        background-color: #e7e7e7;
+      }
+    }
+
+    .action-column {
+      width: 20%;
+    }
+
+    .checkBox-column {
+      width: 3%;
+    }
+    .name-column {
+      width: 30%;
+    }
+
+    button {
+      background-color: transparent;
+      border: none;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 15px;
+      cursor: pointer;
+
+      img {
+        width: 20px;
+        height: 20px;
+        margin: 3px;
+      }
+
+      &:hover {
+        background-color: rgb(211, 211, 211);
+      }
+    }
+  }
+}
+===
+import { Component, OnInit } from '@angular/core';
+import { Playlist } from '../../models/playlist.model';
+import { PlaylistService } from '../../services/playlist.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { PlaylistApiService } from '../../services/playlist-api.service';
+import { map } from 'rxjs';
+
+@Component({
+  selector: 'app-playlist-table',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './playlist-table.component.html',
+  styleUrls: ['./playlist-table.component.scss'],
+})
+export class PlaylistTableComponent implements OnInit {
+  errorMessage: string | null = null;
+  private playlists: Playlist[] = [];
+  public checkBoxAll: boolean = false;
+
+  constructor(
+    private playlistService: PlaylistService,
+    private playlistApiService: PlaylistApiService
+  ) {}
+
+  get getPlaylists() {
+    return this.playlists;
+  }
+
+  // private loadPlaylists(): void {
+  //   try {
+  //     this.playlistService.loadPlaylists();
+  //     this.playlists = this.playlistService.allPlaylists;
+  //   } catch (error) {
+  //     this.errorMessage = 'Network problem!';
+  //     throw new Error(this.errorMessage);
+  //   }
+  // }
+
+  loadPlaylists = (): void => {
+    try {
+      this.playlistApiService
+        .getPlaylists()
+        .pipe(
+          map((data: Playlist[]) => {
+            data.forEach((playlist) => {
+              if (playlist.songs.length > 0) {
+                playlist.check = false;
+                playlist.songIterator = 0;
+              }
+            });
+            console.log(data);
+            return data;
+          })
+        )
+        .subscribe((data) => (this.playlists = data));
+    } catch (error) {
+      throw new Error('Network problem!');
+    }
+  };
+
+  ngOnInit(): void {
+    // this.playlistService.loadPlaylists();
+    this.loadPlaylists();
+  }
+
+  playSong(playlist: Playlist) {
+    this.playlistService.playSong(playlist);
+  }
+
+  addToPlaylist(playlist: Playlist) {
+    this.playlistService.addToPlaylist(playlist);
+  }
+
+  editPlaylist(playlist: Playlist) {
+    this.playlistService.editPlaylist(playlist);
+  }
+
+  deletePlaylist(id: string) {
+    try {
+      this.playlistService.deletePlaylist(id);
+      this.playlists = this.playlists.filter((playlist) => playlist.id !== id);
+    } catch (error) {
+      new Error('Cannot delete!');
+    }
+  }
+
+  handlePrevSong(playlist: Playlist) {
+    this.playlistService.handlePrevSong(playlist);
+  }
+
+  handleNextSong(playlist: Playlist) {
+    this.playlistService.handleNextSong(playlist);
+  }
+
+  deleteSelectedPlaylists(): void {
+    this.playlistService.deletePlaylists();
+    this.playlists = this.playlistService.allPlaylists;
+    this.checkBoxAll = this.playlistService.getCheckBoxAll;
+  }
+
+  handleCheckBoxAll(): void {
+    this.playlistService.handleCheckBoxAll(this.checkBoxAll);
+  }
+}
+===
+<div class="player-container">
+  <section class="icon-section">
+    <img src="/img/dvd-icon.png" alt="player-icon" />
+  </section>
+  <section>
+    <h3>{{ song.name }}</h3>
+    <h5>{{ song.artist }}</h5>
+  </section>
+
+  <audio hidden>
+    <source [src]="song.audio" type="audio/mpeg" />
+  </audio>
+
+  <div class="time-control">
+    <input
+      type="range"
+      [min]="0"
+      [max]="totalDuration"
+      [value]="currentTime"
+      (input)="seekTo($event)"
+    />
+  </div>
+
+  <div class="volume-control">
+    <button (click)="toggleMute()">
+      <img *ngIf="!isMuted" src="/img/volume-icon.png" alt="Volume Icon" />
+      <img *ngIf="isMuted" src="/img/mute-icon.png" alt="Mute Icon" />
+    </button>
+    <input
+      type="range"
+      id="volume"
+      min="0"
+      max="1"
+      step="0.01"
+      [value]="currentVolume"
+      (input)="changeVolume($event)"
+      orient="vertical"
+    />
+  </div>
+  <div class="song-option">
+    <button (click)="playRandomSong()">
+      <img src="/img/random.png" alt="" />
+    </button>
+    <button (click)="toggleRepeat()">
+      <img *ngIf="isRepeat" src="/img/repeat.png" alt="" />
+      <img *ngIf="!isRepeat" src="/img/unrepeat.png" alt="" />
+    </button>
+  </div>
+  <div class="song-control">
+    <button (click)="previousSong()">
+      <img src="/img/prev-icon.png" alt="" />
+    </button>
+    <button (click)="togglePlay()">
+      <img *ngIf="isPlaying" src="/img/pause-icon.png" alt="" />
+      <img *ngIf="!isPlaying" src="/img/play-song-icon.png" alt="" />
+    </button>
+    <button (click)="nextSong()">
+      <img src="/img/next-icon.png" alt="" />
+    </button>
+  </div>
+  <!-- <section class="list-to-play">
+    <h3>Playlist Songs:</h3>
+    <div className="song-list"></div>
+  </section> -->
+</div>
+===
+.player-container {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  // width: 15%;
+
+  .icon-section {
+    display: flex;
+    justify-content: center;
+    img {
+      width: 90%;
+      padding-top: 15px;
+    }
+  }
+
+  .time-control {
+    input {
+      margin: 5px;
+      width: 80%;
+      // height: 8px;
+      // appearance: none;
+      // background: #ccc;
+      // border-radius: 5px;
+      // outline: none;
+      // cursor: pointer;
+    }
+  }
+
+  .volume-control {
+    display: flex;
+    justify-content: center;
+    input: {
+      width: 50%;
+    }
+    button {
+      width: 10%;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      img {
+        width: 100%;
+      }
+    }
+  }
+
+  .song-control {
+    display: flex;
+    justify-content: center;
+
+    button {
+      width: 20%;
+      margin: 5px;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      img {
+        width: 100%;
+      }
+    }
+  }
+
+  .song-option {
+    display: flex;
+    justify-content: center;
+
+    button {
+      width: 15%;
+      margin: 5px;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      img {
+        width: 100%;
+      }
+    }
+  }
+
+  // .list-to-play {
+  //   height: 200px;
+  //   background-color: aqua;
+  // }
+}
+
+==
+import { Component, EventEmitter, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Song } from '../../models/song.model';
+import { SongPlayerManagerService } from '../../services/song-player-manager.service';
+
+@Component({
+  selector: 'app-song-player',
+  standalone: true,
+  templateUrl: './song-player.component.html',
+  styleUrls: ['./song-player.component.scss'],
+  imports: [CommonModule, FormsModule],
+})
+export class SongPlayerComponent {
+  song: Song = {
+    name: '',
+    artist: '',
+    album: '',
+    year: '',
+    audio: '',
+  };
+  songs: Song[] = [];
+
+  currentSongIndex = 0;
+  isMuted = false;
+  isPlaying = false;
+  isRepeat = false;
+  currentTime = 0;
+  totalDuration = 0;
+  currentVolume = 1;
+  previousVolume = this.currentVolume;
+
+  audioPlayer!: HTMLAudioElement;
+
+  constructor(private songPlayerManager: SongPlayerManagerService) {}
+
+  ngOnInit() {
+    this.song = this.songPlayerManager.getSong;
+    this.songs = this.songPlayerManager.getSongs;
+    this.currentSongIndex = this.songs.findIndex(
+      (song) => song.id === this.song.id
+    );
+    this.audioPlayer = new Audio(this.song.audio);
+    this.playSong();
+
+    this.audioPlayer.addEventListener('loadedmetadata', () => {
+      this.totalDuration = this.audioPlayer.duration;
+    });
+
+    this.audioPlayer.addEventListener('timeupdate', () => {
+      this.currentTime = this.audioPlayer.currentTime;
+    });
+
+    this.audioPlayer.addEventListener('ended', () => {
+      this.nextSong();
+    });
+
+    this.audioPlayer.volume = this.currentVolume;
+
+    this.songPlayerManager.songChanged.subscribe((song: Song) => {
+      this.song = song;
+      this.audioPlayer.src = this.song.audio;
+      this.audioPlayer.load();
+      this.playSong();
+      this.currentSongIndex = this.songs.findIndex(
+        (song) => song.id === this.song.id
+      );
+    });
+  }
+
+  playSong() {
+    this.audioPlayer.play();
+    this.isPlaying = true;
+  }
+
+  pauseSong() {
+    this.audioPlayer.pause();
+    this.isPlaying = false;
+  }
+
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+
+    if (this.isMuted) {
+      this.previousVolume = this.audioPlayer.volume;
+      this.audioPlayer.volume = 0;
+      this.currentVolume = 0;
+    } else {
+      this.audioPlayer.volume =
+        this.previousVolume > 0 ? this.previousVolume : 1;
+      this.currentVolume = this.previousVolume;
+    }
+  }
+
+  toggleRepeat() {
+    this.isRepeat = !this.isRepeat;
+    this.audioPlayer.loop = this.isRepeat;
+  }
+
+  nextSong() {
+    this.currentSongIndex = (this.currentSongIndex + 1) % this.songs.length;
+    this.song = this.songs[this.currentSongIndex];
+    this.loadAndPlaySongIfPlaying();
+    console.log(this.currentSongIndex);
+    console.log(this.song);
+  }
+
+  previousSong() {
+    this.currentSongIndex =
+      (this.currentSongIndex - 1 + this.songs.length) % this.songs.length;
+    this.song = this.songs[this.currentSongIndex];
+    this.loadAndPlaySongIfPlaying();
+  }
+
+  playRandomSong() {
+    const randomIndex = Math.floor(Math.random() * this.songs.length);
+    this.currentSongIndex = randomIndex;
+    this.song = this.songs[this.currentSongIndex];
+    this.loadAndPlayCurrentSong();
+  }
+
+  loadAndPlaySongIfPlaying() {
+    this.audioPlayer.src = this.songs[this.currentSongIndex].audio;
+    this.audioPlayer.load();
+    if (this.isPlaying) {
+      this.audioPlayer.play();
+    }
+  }
+
+  loadAndPlayCurrentSong() {
+    this.audioPlayer.src = this.songs[this.currentSongIndex].audio;
+    this.audioPlayer.load();
+    this.audioPlayer.play();
+  }
+
+  changeVolume(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.currentVolume = +input.value;
+    if (this.currentVolume === 0) {
+      this.audioPlayer.muted = true;
+      this.isMuted = true;
+    } else {
+      this.audioPlayer.volume = this.currentVolume;
+      this.audioPlayer.muted = false;
+      this.isMuted = false;
+    }
+  }
+
+  seekTo(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.audioPlayer.currentTime = +input.value;
+  }
+
+  togglePlay() {
+    if (this.isPlaying) {
+      this.pauseSong();
+    } else {
+      this.playSong();
+    }
+  }
+
+  // formatTime(time: number): string {
+  //   const minutes = Math.floor(time / 60);
+  //   const seconds = Math.floor(time % 60)
+  //     .toString()
+  //     .padStart(2, '0');
+  //   return `${minutes}:${seconds}`;
+  // }
+}
+==
+<div id="table-container">
+  <table id="table">
+    <thead>
+      <tr id="fixed-title">
+        <th class="checkBox-column">
+          <input
+            id="checkBoxAll"
+            type="checkbox"
+            [(ngModel)]="checkBoxAll"
+            (change)="handleCheckBoxAll()"
+          />
+        </th>
+        <th class="name-column">Name</th>
+        <th class="artist-column">Artist</th>
+        <th class="action-column">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let song of this.filteredSongs; let i = index"
+        [attr.key]="song.id"
+      >
+        <td class="checkBox-column">
+          <input type="checkbox" [(ngModel)]="song.check" />
+        </td>
+        <td>{{ song.name }}</td>
+        <td>{{ song.artist }}</td>
+        <td>
+          <button (click)="playSong(song)">
+            <img src="/img/play-icon.png" alt="play-song-icon" />
+            Play
+          </button>
+          <button (click)="addToPlaylist(song)">
+            <img src="/img/add-playlist-icon.png" alt="add-to-playlist-icon" />
+            Add to playlists
+          </button>
+          <button (click)="editSong(song)">
+            <img src="/img/edit-icon.png" alt="edit-song-icon" />
+            Edit
+          </button>
+          <button (click)="deleteSong(song)">
+            <img src="/img/delete-icon.png" alt="delete-song-icon" />
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div *ngIf="errorMessage">{{ errorMessage }}</div>
+</div>
+==
+#table-container {
+  height: 650px;
+  overflow-x: auto;
+  overflow-y: auto;
+  border: 1px solid #838383;
+  // width: 85%;
+  // float: right;
+
+  table {
+    width: 100%;
+    border: #686868 1px solid;
+
+    #fixed-title {
+      position: sticky;
+      top: 0;
+      background-color: whitesmoke;
+    }
+
+    th {
+      padding: 10px 0;
+    }
+
+    td {
+      text-align: center;
+    }
+
+    tr {
+      &:nth-child(even) {
+        background-color: #e7e7e7;
+      }
+    }
+
+    .action-column {
+      width: 30%;
+    }
+
+    .checkBox-column {
+      width: 3%;
+    }
+
+    button {
+      background-color: transparent;
+      border: none;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 15px;
+      cursor: pointer;
+
+      img {
+        width: 20px;
+        height: 20px;
+        margin: 3px;
+      }
+
+      &:hover {
+        background-color: rgb(211, 211, 211);
+      }
+    }
+  }
+}
+
+==
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Song } from '../../models/song.model';
+import { SongService } from '../../services/song.service';
+import { map } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { SongPlayerManagerService } from '../../services/song-player-manager.service';
+import { RouterLink, RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'app-song-table',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, RouterOutlet],
+  templateUrl: './song-table.component.html',
+  styleUrls: ['./song-table.component.scss'],
+})
+export class SongTableComponent implements OnInit, OnDestroy {
+  @Output() editSongEvent = new EventEmitter<Song>();
+  // @Output() playSongEvent = new EventEmitter<void>();
+
+  errorMessage: string | null = null;
+  private songs: Song[] = [];
+  checkBoxAll: boolean = false;
+  filteredSongs: Song[] = [];
+
+  constructor(
+    private songService: SongService,
+    private songPlayerManager: SongPlayerManagerService
+  ) {}
+  ngOnDestroy(): void {
+    console.log('destroy');
+  }
+
+  get allSongs() {
+    return this.songs;
+  }
+
+  loadSongs = (): void => {
+    try {
+      this.songService
+        .getSongs()
+        .pipe(
+          map((songs: Song[]) => {
+            songs.forEach((song) => {
+              song.check = false;
+            });
+            return songs;
+          })
+        )
+        .subscribe((data) => {
+          this.songs = data;
+          this.filteredSongs = data;
+        });
+    } catch (error) {
+      throw new Error('Network problem!');
+    }
+  };
+
+  filterSongs(searchKey: string) {
+    if (searchKey === '') {
+      this.filteredSongs = this.allSongs;
+      console.log("search key = ''");
+    } else
+      this.filteredSongs = this.songs.filter(
+        (song) =>
+          song.name.toLowerCase().includes(searchKey.toLowerCase()) ||
+          song.artist.toLowerCase().includes(searchKey.toLowerCase())
+      );
+  }
+
+  ngOnInit(): void {
+    this.loadSongs();
+  }
+
+  playSong(song: Song) {
+    this.songPlayerManager.setSongs = this.allSongs;
+    this.songPlayerManager.setSong = song;
+    this.songPlayerManager.setOpenSongPlayer = true;
+    // this.playSongEvent.emit();
+  }
+
+  addToPlaylist(song: Song) {
+    console.log('Adding to playlist:', song);
+  }
+
+  editSong(song: Song) {
+    console.log('Editing song:', song);
+    this.editSongEvent.emit(song);
+  }
+
+  deleteSong(deleteSong: Song) {
+    const cf = window.confirm('Do you want to delete this song!');
+    if (cf && deleteSong.id) {
+      this.songService.deleteSong(deleteSong.id).subscribe();
+      this.songs = this.songs.filter((song) => song.id !== deleteSong.id);
+    }
+  }
+
+  handleCheckBoxAll() {
+    this.songs.forEach((song) => (song.check = this.checkBoxAll));
+  }
+
+  deleteSelectedSongs() {
+    const cf = window.confirm('Do you want to delete the selected songs?');
+    if (cf) {
+      this.songs.forEach((song) => {
+        if (song.check && song.id) {
+          this.songService.deleteSong(song.id).subscribe();
+        }
+      });
+      this.songs = this.songs.filter((song) => !song.check);
+      this.songs.forEach((song) => {
+        song.check = false;
+      });
+      this.checkBoxAll = false;
+    } else {
+      this.checkBoxAll = false;
+      this.handleCheckBoxAll();
+    }
+  }
+
+  modifySongTable(modifiedSong: Song) {
+    this.loadSongs;
+    const songIndex = this.songs.findIndex(
+      (song) => song.id === modifiedSong.id
+    );
+    if (songIndex !== -1) {
+      this.songs[songIndex] = { ...modifiedSong };
+    } else {
+      this.songs.push(modifiedSong);
+    }
+  }
+}
+==
+{
+  "songs": [
+    {
+      "id": "113",
+      "name": "Summer Vibes",
+      "artist": "Calvin Harris",
+      "album": "Feel the Beat",
+      "year": 2020,
+      "audio": "../audio/EmCuaNgayHomQua.m4a"
+    },
+    {
+      "id": "114",
+      "name": "Fireworks",
+      "artist": "Katy Perry",
+      "album": "Fireworks",
+      "year": 2011,
+      "audio": "../audio/NoLie.m4a"
+    },
+    {
+      "id": "115",
+      "name": "Golden Days",
+      "artist": "One Direction",
+      "album": "Midnight Memories",
+      "year": 2014,
+      "audio": "../audio/CanYouHearTheMusic.m4a"
+    },
+    {
+      "id": "116",
+      "name": "Ocean Eyes",
+      "artist": "Billie Eilish",
+      "album": "Ocean Eyes",
+      "year": 2016,
+      "audio": "../audio/DancingInTheFlame.m4a"
+    },
+    {
+      "id": "117",
+      "name": "Blinding Lights",
+      "artist": "The Weeknd",
+      "album": "After Hours",
+      "year": 2019,
+      "audio": "../audio/EmCuaNgayHomQua.m4a"
+    },
+    {
+      "id": "118",
+      "name": "Shape of You",
+      "artist": "Ed Sheeran",
+      "album": "Divide",
+      "year": 2017,
+      "audio": "../audio/NoLie.m4a"
+    },
+    {
+      "id": "119",
+      "name": "Levitating",
+      "artist": "Dua Lipa",
+      "album": "Future Nostalgia",
+      "year": 2020,
+      "audio": "../audio/CanYouHearTheMusic.m4a"
+    },
+    {
+      "id": "120",
+      "name": "Stitches",
+      "artist": "Shawn Mendes",
+      "album": "Handwritten",
+      "year": 2015,
+      "audio": "../audio/DancingInTheFlame.m4a"
+    },
+    {
+      "id": "121",
+      "name": "Sorry",
+      "artist": "Justin Bieber",
+      "album": "Purpose",
+      "year": 2015,
+      "audio": "../audio/EmCuaNgayHomQua.m4a"
+    },
+    {
+      "id": "122",
+      "name": "Sunflower",
+      "artist": "Post Malone ft. Swae Lee",
+      "album": "Spider-Man: Into the Spider-Verse",
+      "year": 2018,
+      "audio": "../audio/NoLie.m4a"
+    },
+    {
+      "id": "123",
+      "name": "Memories",
+      "artist": "Maroon 5",
+      "album": "Memories",
+      "year": 2019,
+      "audio": "../audio/CanYouHearTheMusic.m4a"
+    },
+    {
+      "id": "124",
+      "name": "Bad Guy",
+      "artist": "Billie Eilish",
+      "album": "When We All Fall Asleep, Where Do We Go?",
+      "year": 2019,
+      "audio": "../audio/DancingInTheFlame.m4a"
+    },
+    {
+      "id": "125",
+      "name": "Roar",
+      "artist": "Katy Perry",
+      "album": "Prism",
+      "year": 2013,
+      "audio": "../audio/EmCuaNgayHomQua.m4a"
+    },
+    {
+      "id": "126",
+      "name": "Closer",
+      "artist": "The Chainsmokers ft. Halsey",
+      "album": "Collage",
+      "year": 2016,
+      "audio": "../audio/NoLie.m4a"
+    },
+    {
+      "id": "127",
+      "name": "Let Her Go",
+      "artist": "Passenger",
+      "album": "All the Little Lights",
+      "year": 2012,
+      "audio": "../audio/CanYouHearTheMusic.m4a"
+    },
+    {
+      "id": "128",
+      "name": "Senorita",
+      "artist": "Shawn Mendes & Camila Cabello",
+      "album": "Senorita",
+      "year": 2019,
+      "audio": "../audio/DancingInTheFlame.m4a"
+    },
+    {
+      "id": "129",
+      "name": "Old Town Road",
+      "artist": "Lil Nas X ft. Billy Ray Cyrus",
+      "album": "Old Town Road",
+      "year": 2019,
+      "audio": "../audio/EmCuaNgayHomQua.m4a"
+    },
+    {
+      "id": "130",
+      "name": "Havana",
+      "artist": "Camila Cabello ft. Young Thug",
+      "album": "Camila",
+      "year": 2018,
+      "audio": "../audio/NoLie.m4a"
+    },
+    {
+      "id": "131",
+      "name": "Believer",
+      "artist": "Imagine Dragons",
+      "album": "Evolve",
+      "year": 2017,
+      "audio": "../audio/CanYouHearTheMusic.m4a"
+    },
+    {
+      "id": "132",
+      "name": "Someone You Loved",
+      "artist": "Lewis Capaldi",
+      "album": "Divinely Uninspired to a Hellish Extent",
+      "year": 2018,
+      "audio": "../audio/YouAndI.m4a"
+    },
+    {
+      "id": "133",
+      "name": "Demons",
+      "artist": "Imagine Dragons",
+      "album": "Night Visions",
+      "year": 2012,
+      "audio": "../audio/EmCuaNgayHomQua.m4a"
+    },
+    {
+      "id": "134",
+      "name": "Wolves",
+      "artist": "Selena Gomez & Marshmello",
+      "album": "Wolves",
+      "year": 2017,
+      "audio": "../audio/NoLie.m4a",
+      "check": false
+    },
+    {
+      "id": "135",
+      "name": "Radioactive",
+      "artist": "Imagine Dragons",
+      "album": "Night Visions",
+      "year": 2012,
+      "audio": "../audio/CanYouHearTheMusic.m4a"
+    },
+    {
+      "id": "136",
+      "name": "Lovely",
+      "artist": "Billie Eilish ft. Khalid",
+      "album": "Lovely",
+      "year": 2018,
+      "audio": "../audio/DancingInTheFlame.m4a"
+    }
+  ],
+  "playlists": [
+    {
+      "id": "1",
+      "name": "Wishlist",
+      "songs": [
+        {
+          "id": "134",
+          "name": "Wolves",
+          "artist": "Selena Gomez & Marshmello",
+          "album": "Wolves",
+          "year": 2017,
+          "audio": "../audio/NoLie.m4a"
+        },
+        {
+          "id": "135",
+          "name": "Radioactive",
+          "artist": "Imagine Dragons",
+          "album": "Night Visions",
+          "year": 2012,
+          "audio": "../audio/CanYouHearTheMusic.m4a"
+        },
+        {
+          "id": "136",
+          "name": "Lovely",
+          "artist": "Billie Eilish ft. Khalid",
+          "album": "Lovely",
+          "year": 2018,
+          "audio": "../audio/DancingInTheFlame.m4a"
+        }
+      ]
+    },
+    {
+      "name": "Playlist 17",
+      "songs": [],
+      "id": "ff10"
+    },
+    {
+      "id": "126",
+      "name": "Wishlist",
+      "songs": []
+    },
+    {
+      "id": "125",
+      "name": "Wishlist",
+      "songs": []
+    },
+    {
+      "id": "129",
+      "name": "Wishlist",
+      "songs": []
+    },
+    {
+      "id": "120",
+      "name": "Wishlist",
+      "songs": []
+    }
+  ]
+}
+==
+import { Song } from './song.model';
+
+export interface Playlist {
+  check: boolean;
+  id: string;
+  name: string;
+  songs: Song[];
+  songIterator: number;
+}
+==
+export interface Song {
+  check?: boolean;
+  id?: string;
+  name: string;
+  artist: string;
+  album: string;
+  year: number | any;
+  audio: string;
+}
+==
+<div>
+  <app-header></app-header>
+  <main>
+    <aside>
+      <app-aside *ngIf="!openSongPlayAside"></app-aside>
+      <app-aside-song-play *ngIf="openSongPlayAside"></app-aside-song-play>
+    </aside>
+    <app-song-manager></app-song-manager>
+    <app-playlist-manager></app-playlist-manager>
+
+    <app-footer></app-footer>
+  </main>
+</div>
+
+<!-- <div>
+  <div id="home" class="section">
+    <app-header></app-header>
+  </div>
+  <main>
+    <aside>
+      <app-aside *ngIf="!openSongPlayAside"></app-aside>
+      <app-aside-song-play *ngIf="openSongPlayAside"></app-aside-song-play>
+    </aside>
+    <section class="content-container">
+      <section id="song-manager" class="section">
+        <app-song-manager></app-song-manager>
+      </section>
+      <section id="playlist-manager" class="section">
+        <app-playlist-manager></app-playlist-manager>
+      </section>
+    </section>
+    <app-footer></app-footer>
+  </main>
+</div> -->
+===
+import {
+  Component,
+  HostListener,
+  Inject,
+  OnInit,
+  PLATFORM_ID,
+} from '@angular/core';
+import { HeaderComponent } from '../../components/header/header.component';
+import { AsideComponent } from '../../components/aside/aside.component';
+import { FooterComponent } from '../../components/footer/footer.component';
+import { NavPlaylistComponent } from '../../components/nav/nav-playlist/nav-playlist.component';
+import { SongTableComponent } from '../../components/song-table/song-table.component';
+import { PlaylistTableComponent } from '../../components/playlist-table/playlist-table.component';
+import { NavSongComponent } from '../../components/nav/nav-song/nav-song.component';
+import { PlaylistManagerComponent } from '../../components/manage/playlist-manager/playlist-manager.component';
+import { SongManagerComponent } from '../../components/manage/song-manager/song-manager.component';
+import { SongPlayerComponent } from '../../components/song-player/song-player.component';
+import { SongPlayerManagerService } from '../../services/song-player-manager.service';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { AsideSongPlayComponent } from '../../components/aside-song-play/aside-song-play.component';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { fromEvent, throttleTime } from 'rxjs';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [
+    HeaderComponent,
+    AsideComponent,
+    FooterComponent,
+    NavPlaylistComponent,
+    SongTableComponent,
+    PlaylistTableComponent,
+    NavSongComponent,
+    PlaylistManagerComponent,
+    SongManagerComponent,
+    SongPlayerComponent,
+    CommonModule,
+    AsideSongPlayComponent,
+    RouterLink,
+    RouterOutlet,
+  ],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
+})
+export class HomeComponent implements OnInit {
+  openSongPlayAside: boolean = false;
+  isBrowser: boolean;
+
+  // handlePlaySong(): void {
+  //   this.openSongPlayAside = true;
+  //   console.log(this.openSongPlayAside);
+  // }
+  constructor(
+    private songPlayerManager: SongPlayerManagerService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+
+    // if (this.isBrowser) {
+    //   fromEvent(window, 'scroll')
+    //     .pipe(throttleTime(300))
+    //     .subscribe((event) => this.onWindowScroll(event));
+    // }
+  }
+  ngOnInit(): void {
+    this.songPlayerManager.openSongPlayerChanged.subscribe((open: boolean) => {
+      this.openSongPlayAside = open;
+    });
+  }
+
+  // @HostListener('window:scroll', ['$event'])
+  // onWindowScroll(event: Event) {
+  //   if (!this.isBrowser) {
+  //     return;
+  //   }
+  //   let scrollPosition = window.scrollY || document.documentElement.scrollTop;
+  //   scrollPosition = scrollPosition + 900;
+  //   const sections: NodeListOf<HTMLElement> =
+  //     document.querySelectorAll('.section');
+  //   const navLinks: NodeListOf<HTMLButtonElement> = document.querySelectorAll(
+  //     '#aside-container button'
+  //   );
+
+  //   sections.forEach((section: HTMLElement) => {
+  //     if (
+  //       section.offsetTop <= scrollPosition &&
+  //       section.offsetTop + section.offsetHeight > scrollPosition
+  //     ) {
+  //       navLinks.forEach((link: HTMLButtonElement) => {
+  //         if (link.textContent?.toLowerCase().includes(section.id)) {
+  //           link.classList.add('active');
+  //         } else {
+  //           link.classList.remove('active');
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+}
+===
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Playlist } from '../models/playlist.model';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class PlaylistApiService {
+  private PLAYLISTS_URL: string = 'http://localhost:5000/playlists';
+
+  constructor(private http: HttpClient) {}
+
+  getPlaylists(): Observable<Playlist[]> {
+    return this.http.get<Playlist[]>(this.PLAYLISTS_URL);
+  }
+
+  addPlaylist(newPlaylist: Playlist): Observable<Playlist> {
+    return this.http.post<Playlist>(this.PLAYLISTS_URL, newPlaylist);
+  }
+
+  updatePlaylist(id: string, updatedPlaylist: Playlist): Observable<Playlist> {
+    return this.http.put<Playlist>(
+      `${this.PLAYLISTS_URL}/${id}`,
+      updatedPlaylist
+    );
+  }
+
+  deletePlaylist(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.PLAYLISTS_URL}/${id}`);
+  }
+}
+==
+import { Injectable } from '@angular/core';
+import { map } from 'rxjs';
+import { Playlist } from '../models/playlist.model';
+import { PlaylistApiService } from './playlist-api.service';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class PlaylistService {
+  errorMessage: string | null = null;
+  private playlists: Playlist[] = [];
+  private checkBoxAll: boolean = false;
+
+  constructor(private playlistApi: PlaylistApiService) {}
+
+  get allPlaylists() {
+    return this.playlists;
+  }
+
+  get getCheckBoxAll() {
+    return this.checkBoxAll;
+  }
+
+  public loadPlaylists(): void {
+    try {
+      this.playlistApi
+        .getPlaylists()
+        .pipe(
+          map((data: Playlist[]) => {
+            data.forEach((playlist) => {
+              if (playlist.songs.length > 0) {
+                playlist.check = false;
+                playlist.songIterator = 0;
+              }
+            });
+            console.log(data);
+            return data;
+          })
+        )
+        .subscribe((data) => (this.playlists = data));
+    } catch (error) {
+      throw new Error('Network problem!');
+    }
+  }
+
+  playSong(playlist: Playlist) {
+    console.log('Playing song:', playlist);
+  }
+
+  addToPlaylist(playlist: Playlist) {
+    console.log('Adding to playlist:', playlist);
+  }
+
+  editPlaylist(playlist: Playlist) {
+    console.log('Editing song:', playlist);
+  }
+
+  deletePlaylist(id: string): void {
+    if (parseInt(id) === 1) {
+      alert('Cannot delete Wishlist!');
+    } else {
+      let cf = window.confirm('Do you want to delete this playlist!');
+      if (cf) {
+        this.playlistApi.deletePlaylist(id).subscribe(() => {
+          console.log('Deleted Playlist with id:', id);
+        });
+      }
+    }
+  }
+
+  handlePrevSong(playlist: Playlist): void {
+    if (playlist.songIterator === 0) {
+      playlist.songIterator = playlist.songs.length - 1;
+    } else {
+      playlist.songIterator--;
+    }
+  }
+
+  handleNextSong(playlist: Playlist): void {
+    if (playlist.songIterator === playlist.songs.length - 1) {
+      playlist.songIterator = 0;
+    } else {
+      playlist.songIterator++;
+    }
+  }
+
+  deletePlaylists(): void {
+    const cf = window.confirm('Do you want to delete the selected playlists?');
+    if (cf) {
+      let wishlist = false;
+      this.playlists.forEach((playlist) => {
+        if (playlist.check) {
+          if (parseInt(playlist.id) !== 1) {
+            this.playlistApi.deletePlaylist(playlist.id).subscribe(() => {
+              console.log('Deleted Playlist with id:', playlist.id);
+            });
+          } else {
+            wishlist = true;
+          }
+        }
+      });
+
+      if (wishlist) {
+        alert('Cannot delete Wishlist!');
+      }
+      this.playlists = this.playlists.filter(
+        (playlist) => !playlist.check || parseInt(playlist.id) === 1
+      );
+      this.playlists.forEach((playlist) => {
+        playlist.check = false;
+      });
+      this.checkBoxAll = false;
+    } else {
+      this.checkBoxAll = false;
+      this.handleCheckBoxAll(false);
+    }
+  }
+
+  handleCheckBoxAll(check: boolean): void {
+    this.playlists.forEach((playlist) => {
+      playlist.check = check;
+      console.log(this.checkBoxAll);
+    });
+  }
+}
+
+==
+import { EventEmitter, Injectable } from '@angular/core';
+import { Song } from '../models/song.model';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class SongPlayerManagerService {
+  private song: Song = {
+    name: '',
+    artist: '',
+    album: '',
+    year: '',
+    audio: '',
+  };
+  private songs: Song[] = [];
+  private openSongPlayer: boolean = false;
+  songChanged = new EventEmitter<Song>();
+  openSongPlayerChanged = new EventEmitter<boolean>();
+
+  get getSong() {
+    return this.song;
+  }
+
+  set setSong(song: Song) {
+    this.song = song;
+    this.songChanged.emit(this.song);
+  }
+
+  get getSongs() {
+    return this.songs;
+  }
+
+  set setSongs(songs: Song[]) {
+    this.songs = songs;
+  }
+
+  get getOpenSongPlayer() {
+    return this.openSongPlayer;
+  }
+
+  set setOpenSongPlayer(value: boolean) {
+    this.openSongPlayer = value;
+    this.openSongPlayerChanged.emit(this.openSongPlayer);
+  }
+}
+
+====
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Song } from '../models/song.model';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class SongService {
+  private SONGS_URL: string = 'http://localhost:5000/songs';
+  private PLAYLISTS_URL: string = 'http://localhost:5000/playlists';
+
+  constructor(private http: HttpClient) {}
+
+  getSongs(): Observable<Song[]> {
+    return this.http.get<Song[]>(this.SONGS_URL);
+  }
+
+  addSong(newSong: Song): Observable<Song> {
+    return this.http.post<Song>(this.SONGS_URL, newSong);
+  }
+
+  updateSong(id: string, updatedSong: Song): Observable<Song> {
+    return this.http.put<Song>(`${this.SONGS_URL}/${id}`, updatedSong);
+  }
+
+  deleteSong(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.SONGS_URL}/${id}`);
+  }
+
+  addSongToPlaylist(song: Song, playlistId: number): Observable<any> {
+    return this.http.put(`${this.PLAYLISTS_URL}/${playlistId}`, song);
+  }
+}
